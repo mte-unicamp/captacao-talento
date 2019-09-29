@@ -1,5 +1,6 @@
 from django.db import models
-# import requests as re
+import os
+import requests as re
 # import json
 
 
@@ -11,23 +12,30 @@ class Helper(models.Model):
 
     @classmethod
     def generic_request(ext_obj, obj_id, nested_obj):
-        # TODO
-        return  # url, querystring
+        url = '{}/{}/{}/{}'.format(Helper.api_url, ext_obj,
+                                   obj_id, nested_obj)
+        querystring = {
+            'key': os.environ['TRELLO_KEY'],
+            'token': os.environ['TRELLO_TOKEN'],
+        }
+        return url, querystring
 
     @classmethod
     def get_nested_objs(ext_obj, obj_id, nested_obj=''):
-        # TODO
-        return  # response
+        url, querystring = Helper.generic_request(ext_obj, obj_id, nested_obj)
+        return re.get(url, params=querystring)
 
     @classmethod
     def post_label(card_id, label):
-        # TODO
-        return
+        url, querystring = Helper.generic_request('cards', card_id, 'labels')
+        querystring.update(label)
+        return re.post(url, params=querystring)
 
     @classmethod
     def delete_label(card_id, label_id):
-        # TODO
-        return
+        url, querystring = Helper.generic_request('cards', card_id, 'idLabels')
+        url = ''.join([url, '/{}'.format(label_id)])
+        return re.delete(url, params=querystring)
 
 
 class Updater(models.Model):
