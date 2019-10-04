@@ -133,6 +133,8 @@ class Global(models.Model):
     ATTENTION_DEADLINE = models.IntegerField(default=8)
     URGENT_DEADLINE = models.IntegerField(default=15)
 
+    SALES_LABEL_IDs = []
+    POST_SALES_LABEL_IDs = []
 
 class Company(models.Model):
     """docstring for Company"""
