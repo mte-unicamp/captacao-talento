@@ -26,9 +26,9 @@ class Helper(models.Model):
         return re.get(url, params=querystring)
 
     @classmethod
-    def post_label(card_id, label_id):
-        url, querystring = Helper.generic_request('cards', card_id, 'idLabels')
-        querystring.update({'value': label_id})
+    def post_label(card_id, label):
+        url, querystring = Helper.generic_request('cards', card_id, 'labels')
+        querystring.update(label)
         return re.post(url, params=querystring)
 
     @classmethod

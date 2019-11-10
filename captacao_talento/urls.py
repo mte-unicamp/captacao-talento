@@ -20,6 +20,6 @@ import bot.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('bot/', include('bot.urls')),
-    path('', bot.views.dashboard, name='dashboard'),
+#    path('', bot.views.dashboard, name='dashboard'),
     path('favicon.ico', bot.views.favicon, name='favicon'),
 ]

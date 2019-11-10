@@ -3,6 +3,7 @@ env/
 **/migrations
 **/__pycache__
 .env
+.vscode/
 
 *.txt
 *.sqlite3
