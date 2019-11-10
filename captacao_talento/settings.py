@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'bot',
     'trello_helper',
 ]
@@ -138,5 +139,3 @@ EMAIL_HOST_PASSWORD = get_env_var('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = get_env_var('EMAIL_USE_TLS')
 TRELLO_TOKEN = get_env_var('TRELLO_TOKEN')
 TRELLO_KEY = get_env_var('TRELLO_KEY')
-SALES_BOARD_ID = get_env_var('SALES_BOARD_ID')
-POST_SALES_BOARD_ID = get_env_var('POST_SALES_BOARD_ID')

@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Helper, Updater
 
-# Register your models here.
+admin.site.register(Helper)
+admin.site.register(Updater)
