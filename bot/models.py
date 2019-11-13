@@ -19,7 +19,7 @@ class Hunter(models.Model):
 
     email = models.EmailField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
-    list_id = models.CharField(max_length=100, null=True)
+    #list_id = models.CharField(max_length=100, null=True)
 
     class Meta:
         abstract = True
@@ -129,6 +129,8 @@ class Global(models.Model):
         (BOLE, 'Boleto'), (TRAN, 'Transfer'),
     )
 
+    AUTO_LABEL_NAMES = ['Atualizado', 'Atenção', 'Urgente']
+
     # deadline variables
     ATTENTION_DEADLINE = models.IntegerField(default=8)
     URGENT_DEADLINE = models.IntegerField(default=15)
@@ -143,30 +145,31 @@ class Company(models.Model):
     category = models.CharField(max_length=4, choices=Global.CATEGORY_CHOICES)
     seller_stage = models.CharField(
         max_length=4, choices=Global.STAGE_SELLER_CHOICES, default=Global.FIRS)
-    last_activity = models.DateField(default=timezone.now)
-    date_closed = models.DateField(default=dt.date.today)
+    last_activity = models.DateField(default=dt.date.today)
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
 
     @property
     def inactive_time(self):
-        return (timezone.now() - self.last_activity)
+        return (dt.date.today() - self.last_activity)
 
     @property
     def needs_reminder(self):
+        g = Global.objects.get(pk=1)
         return not (
-            (self.inactive_time.days < Global.URGENT_DEADLINE) or (
+            (self.inactive_time.days < g.URGENT_DEADLINE) or (
                 self.seller_stage in Global.NO_REMINDER)
         )
 
     @property
     def status_label(self):
-        if self.inactive_time.days < Global.ATTENTION_DEADLINE:
-            return 'updated'
-        elif self.inactive_time.days < Global.URGENT_DEADLINE:
-            return 'attention'
+        g = Global.objects.get(pk=1)
+        if self.inactive_time.days < g.ATTENTION_DEADLINE:
+            return Global.AUTO_LABEL_NAMES[0]
+        elif self.inactive_time.days < g.URGENT_DEADLINE:
+            return Global.AUTO_LABEL_NAMES[1]
         else:
-            return 'urgent'
+            return Global.AUTO_LABEL_NAMES[2]
 
     def set_last_activity(self):
         # TODO
@@ -191,6 +194,7 @@ class ClosedCompany(Company):
         max_length=4, choices=Global.CONTRACT_TYPE_CHOICES)
     payment_form = models.CharField(
         max_length=4, choices=Global.PAYMENT_FORM_CHOICES)
+    date_closed = models.DateField(default=dt.date.today)
     intake = models.IntegerField()
     needs_receipt = models.BooleanField()
     stand_size = models.IntegerField()
@@ -207,7 +211,7 @@ class Reminder(models.Model):
 
     # attributes
 
-    @classmethod
+    @staticmethod
     def contact_reminder(seller):
         companies = []
         for c in seller.contact_list:
