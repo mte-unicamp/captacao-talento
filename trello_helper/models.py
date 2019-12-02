@@ -38,6 +38,17 @@ class Helper(models.Model):
         return re.post(url, params=querystring)
 
     @staticmethod
+    def post_list(name, board_id):
+        url = 'https://api.trello.com/1/lists'
+        querystring = {
+            'name': name,
+            'idBoard': board_id,
+            'key': os.environ['TRELLO_KEY'],
+            'token': os.environ['TRELLO_TOKEN'],
+        }
+        return re.post(url, params=querystring)
+
+    @staticmethod
     def post_label(card_id, label_id):
         url, querystring = Helper.generic_request('cards', card_id, 'idLabels')
         querystring.update({'value': label_id})
