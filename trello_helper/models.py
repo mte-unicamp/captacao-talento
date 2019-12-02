@@ -27,7 +27,15 @@ class Helper(models.Model):
         return re.get(url, params=querystring)
 
     @staticmethod
-    def post_card():
+    def post_card(name, list_id):
+        url = 'https://api.trello.com/1/cards'
+        querystring = {
+            'name': name,
+            'idList': list_id,
+            'key': os.environ['TRELLO_KEY'],
+            'token': os.environ['TRELLO_TOKEN'],
+        }
+        return re.post(url, params=querystring)
 
     @staticmethod
     def post_label(card_id, label_id):
