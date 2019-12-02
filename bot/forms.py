@@ -5,7 +5,7 @@ from bot.models import Company, ClosedCompany, Hunter
 class NewCompanyForm(forms.ModelForm):
     class Meta:
         model = Company
-        fields = ['name', 'seller', 'category']
+        fields = ['name', 'seller', 'category', 'main_contact']
 
 
 class CloseCompanyForm(forms.ModelForm):

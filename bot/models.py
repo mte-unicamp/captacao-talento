@@ -2,7 +2,6 @@ from django.db import models
 from django.core.mail import send_mail
 import os
 import datetime as dt
-from trello_helper.models import Helper
 
 
 class Hunter(models.Model):
@@ -159,7 +158,7 @@ class Company(models.Model):
     last_activity = models.DateField(default=dt.date.today)
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
-    closedcompany = models.OneToOneField('ClosedCompany', on_delete=models.CASCADE, blank=True)
+    closed_obj = models.OneToOneField('ClosedCompany', on_delete=models.CASCADE, blank=True)
 
     @property
     def inactive_time(self):
@@ -188,6 +187,7 @@ class Company(models.Model):
         self.save()
 
     def set_last_activity(self):
+        from trello_helper.models import Helper
         card = Helper.get_nested_objs('cards', self.card_id).json()
         labels = card['labels']
         labels_names = [i['name'] for i in labels]
@@ -211,7 +211,7 @@ class Company(models.Model):
 
 class ClosedCompany(Company):
 
-    company = models.OneToOneField('Company', on_delete=models.CASCADE)
+    company_obj = models.OneToOneField('Company', on_delete=models.CASCADE)
     sec_card_id = models.CharField(max_length=100, primary_key=True)
     contractor = models.ForeignKey(
         'Contractor', on_delete=models.SET_NULL, null=True)

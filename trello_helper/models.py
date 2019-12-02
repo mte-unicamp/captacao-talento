@@ -2,7 +2,6 @@ from django.db import models
 import os
 import requests as re
 import time
-from bot.models import Company, Global
 
 
 class Helper(models.Model):
@@ -28,6 +27,9 @@ class Helper(models.Model):
         return re.get(url, params=querystring)
 
     @staticmethod
+    def post_card():
+
+    @staticmethod
     def post_label(card_id, label_id):
         url, querystring = Helper.generic_request('cards', card_id, 'idLabels')
         querystring.update({'value': label_id})
@@ -45,6 +47,7 @@ class Updater(models.Model):
 
     @staticmethod
     def label_update(board_id):
+        from bot.models import Company, Global
 
         cards = Helper.get_nested_objs('boards', board_id, 'cards').json()
         labels = Helper.get_nested_objs('boards', board_id, 'labels').json()
