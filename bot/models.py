@@ -1,10 +1,8 @@
 from django.db import models
-from django.utils import timezone
 from django.core.mail import send_mail
 import os
 import datetime as dt
-# from trello_helper import Helper
-# from django.core.validators import MinValueValidator, MaxValueValidator
+from trello_helper.models import Helper
 
 
 class Hunter(models.Model):
@@ -19,7 +17,7 @@ class Hunter(models.Model):
 
     email = models.EmailField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
-    #list_id = models.CharField(max_length=100, null=True)
+    # list_id = models.CharField(max_length=100, null=True)
 
     class Meta:
         abstract = True
@@ -55,6 +53,15 @@ class Contractor(Hunter):
     @property
     def contact_count(self):
         return ClosedCompany.objects.filter(contractor=self).count()
+
+
+class PostSeller(Hunter):
+    """
+    """
+
+    @property
+    def contact_count(self):
+        return ClosedCompany.objects.filter(postseller=self).count()
 
 
 class Global(models.Model):
@@ -131,6 +138,10 @@ class Global(models.Model):
 
     AUTO_LABEL_NAMES = ['Atualizado', 'Atenção', 'Urgente']
 
+    MANUAL_LABEL_NAMES = {'Contato Inicial': FIRS, 'Sem Resposta': NANS,
+                          'Interessada': INTE, 'Rejeitado': REJE,
+                          'Negociação': NEGO, 'Fechada': CLOS}
+
     # deadline variables
     ATTENTION_DEADLINE = models.IntegerField(default=8)
     URGENT_DEADLINE = models.IntegerField(default=15)
@@ -148,6 +159,7 @@ class Company(models.Model):
     last_activity = models.DateField(default=dt.date.today)
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
+    closedcompany = models.OneToOneField('ClosedCompany', on_delete=models.CASCADE, blank=True)
 
     @property
     def inactive_time(self):
@@ -171,9 +183,24 @@ class Company(models.Model):
         else:
             return Global.AUTO_LABEL_NAMES[2]
 
+    def update(self):
+        self.last_activity = dt.date.today()
+        self.save()
+
     def set_last_activity(self):
-        # TODO
-        return
+        card = Helper.get_nested_objs('cards', self.card_id).json()
+        labels = card['labels']
+        labels_names = [i['name'] for i in labels]
+        for stage in reversed(Global.MANUAL_LABEL_NAMES):
+            if stage in labels_names and self.seller_stage != Global.MANUAL_LABEL_NAMES[stage]:
+                self.update()
+                self.seller_stage = Global.MANUAL_LABEL_NAMES[stage]
+                self.save()
+                break
+        if card['badges']['comments'] > self.comments_number:
+            self.update()
+            self.comments_number = card['badges']['comments']
+            self.save()
 
     class Meta:
         verbose_name_plural = 'companies'
@@ -188,6 +215,8 @@ class ClosedCompany(Company):
     sec_card_id = models.CharField(max_length=100, primary_key=True)
     contractor = models.ForeignKey(
         'Contractor', on_delete=models.SET_NULL, null=True)
+    postseller = models.ForeignKey(
+        'PostSeller', on_delete=models.SET_NULL, null=True)
     fee_type = models.CharField(
         max_length=4, choices=Global.FEE_TYPE_CHOICES)
     contract_type = models.CharField(
