@@ -2,6 +2,8 @@ from django.db import models
 import os
 import requests as re
 import time
+from globalvars.models import Global
+from bot.models import Company
 
 
 class Helper(models.Model):
@@ -65,8 +67,23 @@ class Updater(models.Model):
     """docstring for Updater"""
 
     @staticmethod
+    def set_last_activity(company):
+        card = Helper.get_nested_objs('cards', company.card_id).json()
+        labels = card['labels']
+        labels_names = [i['name'] for i in labels]
+        for stage in reversed(Global.MANUAL_LABEL_NAMES):
+            if stage in labels_names and company.seller_stage != Global.MANUAL_LABEL_NAMES[stage]:
+                company.update()
+                company.seller_stage = Global.MANUAL_LABEL_NAMES[stage]
+                company.save()
+                break
+        if card['badges']['comments'] > company.comments_number:
+            company.update()
+            company.comments_number = card['badges']['comments']
+            company.save()
+
+    @staticmethod
     def label_update(board_id):
-        from bot.models import Company, Global
 
         cards = Helper.get_nested_objs('boards', board_id, 'cards').json()
         labels = Helper.get_nested_objs('boards', board_id, 'labels').json()
