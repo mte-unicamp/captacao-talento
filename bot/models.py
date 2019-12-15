@@ -2,6 +2,7 @@ from django.db import models
 from django.core.mail import send_mail
 import os
 import datetime as dt
+from globalvars.models import Global
 
 
 class Hunter(models.Model):
@@ -63,89 +64,6 @@ class PostSeller(Hunter):
         return ClosedCompany.objects.filter(postseller=self).count()
 
 
-class Global(models.Model):
-    """
-    Set of global variabels used by other models
-    """
-
-    FINA = 'fina'
-    CONS = 'cons'
-    TECH = 'tech'
-    COMM = 'comm'
-    HEAL = 'heal'
-    MANU = 'manu'
-    RECR = 'recr'
-    RESE = 'rese'
-
-    CATEGORY_LIST = [FINA, CONS, TECH, COMM, HEAL, MANU, RECR, RESE]
-
-    CATEGORY_CHOICES = (
-        (FINA, 'Financial'), (CONS, 'Consulting'),
-        (TECH, 'Technology'), (COMM, 'Communication'),
-        (HEAL, 'Health'), (MANU, 'Manufacturing'),
-        (RECR, 'Recruiting'), (RESE, 'Research'),
-    )
-
-    # seller stages
-    FIRS = 'firs'
-    NANS = 'nans'
-    INTE = 'inte'
-    REJE = 'reje'
-    NEGO = 'nego'
-    CLOS = 'clos'
-    # fee type
-    BRON = 'bron'
-    SILV = 'silv'
-    GOLD = 'gold'
-    DIAM = 'diam'
-    # contract type
-    REGU = 'regu'
-    STAR = 'star'
-    OTHE = 'othe'
-    CANC = 'canc'
-    # payment form
-    BOLE = 'bole'
-    TRAN = 'tran'
-
-    STAGE_SELLER_LIST = [FIRS, NANS, INTE, REJE, NEGO, CLOS]
-
-    FEE_TYPE_LIST = [BRON, SILV, GOLD, DIAM, OTHE]
-
-    CONTRACT_TYPE_LIST = [REGU, STAR, CANC]
-
-    PAYMENT_FORM_LIST = [BOLE, TRAN]
-
-    NO_REMINDER = [NANS, REJE, CLOS]
-
-    STAGE_SELLER_CHOICES = (
-        (FIRS, 'Initial Contact'), (NANS, 'No Answer'), (INTE, 'Interested'),
-        (REJE, 'Rejected'), (NEGO, 'Negotiation'), (CLOS, 'Closed'),
-    )
-
-    FEE_TYPE_CHOICES = (
-        (BRON, 'Bronze'), (SILV, 'Silver'), (GOLD, 'Gold'),
-        (DIAM, 'Diamond'), (OTHE, 'Other'),
-    )
-
-    CONTRACT_TYPE_CHOICES = (
-        (REGU, 'Regular'), (STAR, 'Startup'), (CANC, 'Cancelled'),
-    )
-
-    PAYMENT_FORM_CHOICES = (
-        (BOLE, 'Boleto'), (TRAN, 'Transfer'),
-    )
-
-    AUTO_LABEL_NAMES = ['Atualizado', 'Atenção', 'Urgente']
-
-    MANUAL_LABEL_NAMES = {'Contato Inicial': FIRS, 'Sem Resposta': NANS,
-                          'Interessada': INTE, 'Rejeitado': REJE,
-                          'Negociação': NEGO, 'Fechada': CLOS}
-
-    # deadline variables
-    ATTENTION_DEADLINE = models.IntegerField(default=8)
-    URGENT_DEADLINE = models.IntegerField(default=15)
-
-
 class Company(models.Model):
     """docstring for Company"""
 
@@ -158,7 +76,7 @@ class Company(models.Model):
     last_activity = models.DateField(default=dt.date.today)
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
-    closed_obj = models.OneToOneField('ClosedCompany', on_delete=models.CASCADE, blank=True)
+    closedcom = models.OneToOneField('ClosedCompany', on_delete=models.CASCADE, blank=True)
 
     @property
     def inactive_time(self):
@@ -186,22 +104,6 @@ class Company(models.Model):
         self.last_activity = dt.date.today()
         self.save()
 
-    def set_last_activity(self):
-        from trello_helper.models import Helper
-        card = Helper.get_nested_objs('cards', self.card_id).json()
-        labels = card['labels']
-        labels_names = [i['name'] for i in labels]
-        for stage in reversed(Global.MANUAL_LABEL_NAMES):
-            if stage in labels_names and self.seller_stage != Global.MANUAL_LABEL_NAMES[stage]:
-                self.update()
-                self.seller_stage = Global.MANUAL_LABEL_NAMES[stage]
-                self.save()
-                break
-        if card['badges']['comments'] > self.comments_number:
-            self.update()
-            self.comments_number = card['badges']['comments']
-            self.save()
-
     class Meta:
         verbose_name_plural = 'companies'
 
@@ -209,9 +111,9 @@ class Company(models.Model):
         return self.name
 
 
-class ClosedCompany(Company):
+class ClosedCompany(models.Model):
 
-    company_obj = models.OneToOneField('Company', on_delete=models.CASCADE)
+    originalcom = models.OneToOneField('Company', on_delete=models.CASCADE)
     sec_card_id = models.CharField(max_length=100, primary_key=True)
     contractor = models.ForeignKey(
         'Contractor', on_delete=models.SET_NULL, null=True)

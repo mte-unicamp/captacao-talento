@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'bot',
     'trello_helper',
+    'globalvars',
 ]
 
 MIDDLEWARE = [
