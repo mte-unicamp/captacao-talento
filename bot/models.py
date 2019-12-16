@@ -17,7 +17,7 @@ class Hunter(models.Model):
 
     email = models.EmailField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
-    # list_id = models.CharField(max_length=100, null=True)
+    list_id = models.CharField(max_length=100, null=True)
 
     class Meta:
         abstract = True
@@ -115,16 +115,11 @@ class ClosedCompany(models.Model):
 
     originalcom = models.OneToOneField('Company', on_delete=models.CASCADE)
     sec_card_id = models.CharField(max_length=100, primary_key=True)
-    contractor = models.ForeignKey(
-        'Contractor', on_delete=models.SET_NULL, null=True)
-    postseller = models.ForeignKey(
-        'PostSeller', on_delete=models.SET_NULL, null=True)
-    fee_type = models.CharField(
-        max_length=4, choices=Global.FEE_TYPE_CHOICES)
-    contract_type = models.CharField(
-        max_length=4, choices=Global.CONTRACT_TYPE_CHOICES)
-    payment_form = models.CharField(
-        max_length=4, choices=Global.PAYMENT_FORM_CHOICES)
+    contractor = models.ForeignKey('Contractor', on_delete=models.SET_NULL, null=True)
+    postseller = models.ForeignKey('PostSeller', on_delete=models.SET_NULL, null=True)
+    fee_type = models.CharField(max_length=4, choices=Global.FEE_TYPE_CHOICES)
+    contract_type = models.CharField(max_length=4, choices=Global.CONTRACT_TYPE_CHOICES)
+    payment_form = models.CharField(max_length=4, choices=Global.PAYMENT_FORM_CHOICES)
     date_closed = models.DateField(default=dt.date.today)
     intake = models.IntegerField()
     needs_receipt = models.BooleanField()
