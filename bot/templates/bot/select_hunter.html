@@ -1,0 +1,50 @@
+{% extends "bot/base_generic.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block content %}
+        <!-- Main row -->
+        <div class="row">
+          <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-danger">
+              <div class="card-header">
+                <h3 class="card-title">Selecione o(a) Captador(a)</h3>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body p-0">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Classificação</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for i, h in hunters.items %}
+                    <tr>
+                      <td>{{ i }}.</td>
+                      <td>{{ h.name }}</td>
+                      <td>{{ h.email }}</td>
+                      <td>{{ h.category }}</td>
+                      <td>
+                        <a href="/bot/edit_hunter/{{ h.slug }}">
+                          <button class="btn btn-danger">Editar</button></td>
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+                  <label><p></p></label>
+            </div>
+          </div>
+          <!-- /.card -->               
+          
+        <!-- /.row (main row) -->
+ {% endblock %}

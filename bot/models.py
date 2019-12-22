@@ -15,9 +15,13 @@ class Hunter(models.Model):
     of hunters)
     """
 
-    email = models.EmailField(primary_key=True)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, primary_key=True)
+    email = models.EmailField()
     list_id = models.CharField(max_length=100, null=True)
+
+    @property
+    def slug(self):
+        return self.name.replace(' ', '-')
 
     class Meta:
         abstract = True
@@ -72,15 +76,22 @@ class Company(models.Model):
     seller = models.ForeignKey('Seller', on_delete=models.SET_NULL, null=True)
     category = models.CharField(max_length=4, choices=Global.CATEGORY_CHOICES)
     seller_stage = models.CharField(
-        max_length=4, choices=Global.STAGE_SELLER_CHOICES, default=Global.FIRS)
+        max_length=4, choices=Global.STAGE_SELLER_CHOICES, default=Global.FIRS
+    )
     last_activity = models.DateField(default=dt.date.today)
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
-    closedcom = models.OneToOneField('ClosedCompany', on_delete=models.CASCADE, blank=True)
+    closedcom = models.OneToOneField(
+        'ClosedCompany', on_delete=models.CASCADE, blank=True, null=True
+    )
+
+    @property
+    def slug(self):
+        return self.name.replace(' ', '-')
 
     @property
     def inactive_time(self):
-        return (dt.date.today() - self.last_activity)
+        return (dt.date.today() - self.last_activity).days
 
     @property
     def needs_reminder(self):
@@ -122,14 +133,17 @@ class ClosedCompany(models.Model):
     payment_form = models.CharField(max_length=4, choices=Global.PAYMENT_FORM_CHOICES)
     date_closed = models.DateField(default=dt.date.today)
     intake = models.IntegerField()
-    needs_receipt = models.BooleanField()
-    stand_size = models.IntegerField()
-    stand_pos = models.CharField(max_length=10)
-    custom_stand = models.BooleanField()
-    payday = models.DateField()
+    needs_receipt = models.BooleanField(default=False)
+    stand_size = models.IntegerField(blank=True, null=True)
+    stand_pos = models.CharField(max_length=10, blank=True, null=True)
+    custom_stand = models.BooleanField(default=False)
+    payday = models.DateField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'closedCompanies'
+
+    def __str__(self):
+        return f'Closed Object: {self.originalcom.name}'
 
 
 class Reminder(models.Model):

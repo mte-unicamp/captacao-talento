@@ -11,6 +11,7 @@ django = "==2.2.8"
 django-extensions = "*"
 requests = "*"
 werkzeug = "*"
+django-widget-tweaks = "*"
 
 [requires]
 python_version = "3.7"

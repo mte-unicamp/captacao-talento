@@ -1,0 +1,153 @@
+{% extends "bot/base_generic.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block content %}
+        <!-- Main row -->
+        <div class="row">
+          <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-danger">
+              <div class="card-header">
+                <h3 class="card-title">Formulário</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form action="/bot/edit_company/{{ name }}/" method="post">
+                <div class="card-body">
+                  {% csrf_token %}
+                  {{ form.non_field_errors }}
+                  <div class="form-group">
+                    {{ form.name.errors }}
+                    <label for="{{ form.name.id_for_label }}">Nome</label>
+                    {% render_field form.name class="form-control"%}
+                  </div>
+                  <div class="form-group">
+                    {{ form.category.errors }}
+                    <label for="{{ form.category.id_for_label }}">Categoria</label>
+                    {% render_field form.category class="form-control" %}
+                  </div>
+                  <div class="form-group">
+                    {{ form.main_contact.errors }}
+                    <label for="{{ form.main_contact.id_for_label }}">Contato Principal</label>
+                    {% render_field form.main_contact class="form-control" %}
+                  </div>
+                  <div class="form-group">
+                    {{ form.seller_stage.errors }}
+                    <label for="{{ form.seller_stage.id_for_label }}">Estágio de Captação</label><br>
+                    {{ form.seller_stage.help_text }}
+                    {% render_field form.seller_stage class="form-control" %}
+                  </div>
+                  {% if is_closed %}
+                  <div class="row">
+                    <div class="col-4">
+                      <div class="form-group">
+                        {{ form.seller.errors }}
+                        <label for="{{ form.seller.id_for_label }}">Vendedor</label>
+                        {% render_field form.seller class="form-control"%}
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        {{ form.contractor.errors }}
+                        <label for="{{ form.contractor.id_for_label }}">Financeiro</label>
+                        {% render_field form.contractor class="form-control" %}
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                          {{ form.postseller.errors }}
+                          <label for="{{ form.postseller.id_for_label }}">Captador Pós-Venda</label>
+                          {% render_field form.postseller class="form-control" %}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        {{ form.fee_type.errors }}
+                        <label for="{{ form.fee_type.id_for_label }}">Cota</label>
+                        {% render_field form.fee_type class="form-control" %}
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        {{ form.contract_type.errors }}
+                        <label for="{{ form.contract_type.id_for_label }}">Tipo de Contrato</label>
+                        {% render_field form.contract_type class="form-control"%}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-4">
+                      <div class="form-group">
+                        {{ form.intake.errors }}
+                        <label for="{{ form.intake.id_for_label }}">Pagamento</label>
+                        {% render_field form.intake class="form-control" placeholder="Apenas números" %}
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        {{ form.payment_form.errors }}
+                        <label for="{{ form.payment_form.id_for_label }}">Forma de Pagamento</label>
+                        {% render_field form.payment_form class="form-control" %}
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        {{ form.payday.errors }}
+                        <label for="{{ form.payday.id_for_label }}">Dia do Pagamento</label>
+                        {% render_field form.payday class="form-control" placeholder="Apenas números" %}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        {{ form.stand_size.errors }}
+                        <label for="{{ form.stand_size.id_for_label }}">Tamanho do Estande (m<sup>2</sup>)</label>
+                        {% render_field form.stand_size class="form-control" placeholder="Apenas números" %}
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        {{ form.stand_pos.errors }}
+                        <label for="{{ form.stand_pos.id_for_label }}">Posição do Estande</label>
+                        {% render_field form.stand_pos class="form-control" %}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        {{ form.custom_stand.errors }}
+                        <label for="{{ form.custom_stand.id_for_label }}">Estande Personalizado?</label>
+                        {% render_field form.custom_stand class="form-control" %}
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        {{ form.needs_receipt.errors }}
+                        <label for="{{ form.needs_receipt.id_for_label }}">Precisa de Nota Fiscal?</label>
+                        {% render_field form.needs_receipt class="form-control" placeholder="Apenas números" %}
+                      </div>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="form-group">
+                    {{ form.seller.errors }}
+                    <label for="{{ form.seller.id_for_label }}">Vendedor</label>
+                    {% render_field form.seller class="form-control"%}
+                  </div>
+                  {% endif %}
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-danger">Submit</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <!-- /.card -->               
+          
+        <!-- /.row (main row) -->
+ {% endblock %}
