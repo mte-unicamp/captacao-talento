@@ -1,0 +1,50 @@
+{% extends "bot/base_generic.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block content %}
+        <!-- Main row -->
+        <div class="row">
+          <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-danger">
+              <div class="card-header">
+                <h3 class="card-title">Formulário</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form action="/bot/close_company/" method="post">
+                <div class="card-body">
+                  {% csrf_token %}
+                  {{ form.non_field_errors }}
+                  <div class="form-group">
+                    {{ form.originalcom.errors }}
+                    <label for="{{ form.originalcom.id_for_label }}">Empresa</label>
+                    {% render_field form.originalcom class="form-control"%}
+                  </div>
+                  <div class="form-group">
+                    {{ form.fee_type.errors }}
+                    <label for="{{ form.fee_type.id_for_label }}">Cota</label>
+                    {% render_field form.fee_type class="form-control" %}
+                  </div>
+                  <div class="form-group">
+                    {{ form.contract_type.errors }}
+                    <label for="{{ form.contract_type.id_for_label }}">Tipo de Contrato</label>
+                    {% render_field form.contract_type class="form-control" %}
+                  </div>
+                  <div class="form-group">
+                    {{ form.intake.errors }}
+                    <label for="{{ form.intake.id_for_label }}">Pagamento</label>
+                    {% render_field form.intake class="form-control" placeholder="Apenas números" %}
+                    </div>
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-danger">Submit</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <!-- /.card -->               
+          
+        <!-- /.row (main row) -->
+ {% endblock %}

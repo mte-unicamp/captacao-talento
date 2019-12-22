@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path, include
 import bot.views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('bot/', include('bot.urls')),
-#    path('', bot.views.dashboard, name='dashboard'),
+    path('', bot.views.dashboard, name='dashboard'),
+    path('closed_companies/', bot.views.closed_companies, name='closed_companies'),
     path('favicon.ico', bot.views.favicon, name='favicon'),
 ]

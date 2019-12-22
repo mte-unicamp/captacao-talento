@@ -1,0 +1,45 @@
+{% extends "bot/base_generic.html" %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+
+{% block content %}
+        <!-- Main row -->
+        <div class="row">
+          <div class="col-md-12">
+            <!-- general form elements -->
+            <div class="card card-danger">
+              <div class="card-header">
+                <h3 class="card-title">Formulário</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form action="/bot/new_hunter/" method="post">
+                <div class="card-body">
+                  {% csrf_token %}
+                  {{ form.non_field_errors }}
+                  <div class="form-group">
+                    {{ form.name.errors }}
+                    <label for="{{ form.name.id_for_label }}">Nome</label>
+                    {% render_field form.name class="form-control" placeholder="Nome do(a) captador(a)" %}
+                  </div>
+                  <div class="form-group">
+                    {{ form.email.errors }}
+                    <label for="{{ form.email.id_for_label }}">E-mail</label>
+                    {% render_field form.email class="form-control" placeholder="E-mail" %}
+                    </div>
+                  <div class="form-group">
+                    {{ form.hunter_type.errors }}
+                    <label for="{{ form.hunter_type.id_for_label }}">Classificação</label>
+                    {% render_field form.hunter_type class="form-control" %}
+                  </div>
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-danger">Submit</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <!-- /.card -->               
+          
+        <!-- /.row (main row) -->
+ {% endblock %}
