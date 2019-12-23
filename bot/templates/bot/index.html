@@ -68,7 +68,7 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3><!--{{ total_closed }}-->53</h3>
+                <h3>{{ total_closed }}</h3>
 
                 <p>Empresas Fechadas</p>
               </div>
@@ -83,7 +83,7 @@
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3><!-- {{ total_contact }} -->356</h3>
+                <h3>{{ total_contact }}</h3>
 
                 <p>Empresas em contato</p>
               </div>
@@ -240,7 +240,63 @@
         </div>
         <!-- /.row (main row) -->
         <div class="row">
-          <div class="col-md-8">
+          <div class="col-md-12">
+            <div class="card card-purple card-outline">
+              <div class="card-header">
+                <h3 class="card-title">
+                  Divisão Por Cotas
+                </h3>
+
+                <div class="card-tools">
+                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
+                  </button>
+                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-3">
+                    <div class="alert alert-info alert-dismissible">
+                      <h5><i class="icon fas fa-gem"></i>
+                        Diamante
+                        <span class="badge bg-light float-right">{{ diamond }}</span>
+                      </h5>
+                    </div>
+                  </div>
+                  <div class="col-3">
+                    <div class="alert alert-warning alert-dismissible">
+                      <h5><i class="icon fas fa-coins"></i>
+                        Ouro
+                        <span class="badge bg-light float-right">{{ gold }}</span>
+                      </h5>
+                    </div>
+                  </div>
+                  <div class="col-3">
+                    <div class="alert alert-secondary alert-dismissible">
+                      <h5><i class="icon fas fa-sun"></i>
+                        Prata
+                        <span class="badge bg-light float-right">{{ silver }}</span>
+                      </h5>
+                    </div>
+                  </div>
+                  <div class="col-3">
+                    <div class="alert alert-orange alert-dismissible bg-orange">
+                      <h5><i class="icon far fa-sun"></i>
+                        Bronze
+                        <span class="badge bg-light float-right">{{ bronze }}</span>
+                      </h5>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body-->
+            </div>
+            <!-- /.card -->
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-7">
             <!-- BAR CHART -->
             <div class="card card-purple card-outline">
               <div class="card-header">
@@ -263,7 +319,7 @@
             </div>
             <!-- /.card -->
           </div>
-          <div class="col-md-4">
+          <div class="col-md-5">
             <!-- DONUT CHART -->
               <div class="card card-purple card-outline">
                 <div class="card-header">
@@ -284,69 +340,13 @@
           </div>
         </div>
         <!-- /.row -->
-        <div class="row">
-          <div class="col-md-4">
-            <div class="card card-purple card-outline">
-              <div class="card-header">
-                <h3 class="card-title">
-                  Divisão Por Cotas
-                </h3>
-
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="alert alert-info alert-dismissible">
-                  <h5><i class="icon fas fa-gem"></i>Diamante</h5>
-                </div>
-                <div class="alert alert-warning alert-dismissible">
-                  <h5><i class="icon fas fa-coins"></i>Ouro</h5>
-                </div>
-                <div class="alert alert-secondary alert-dismissible">
-                  <h5><i class="icon fas fa-sun"></i>Prata</h5>
-                </div>
-                <div class="alert alert-orange alert-dismissible bg-orange">
-                  <h5><i class="icon far fa-sun"></i>Bronze</h5>
-                </div>
-              </div>
-              <!-- /.card-body-->
-            </div>
-            <!-- /.card -->
-          </div>
-          <div class="col-md-8">
-            <!-- Line chart -->
-            <div class="card card-purple card-outline">
-              <div class="card-header">
-                <h3 class="card-title">
-                  <i class="far fa-chart-bar"></i>
-                  Empresas Fechadas Por Dia
-                </h3>
-
-                <div class="card-tools">
-                  <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="card-body">
-                <div id="line-chart" style="height: 300px;"></div>
-              </div>
-              <!-- /.card-body-->
-            </div>
-            <!-- /.card -->
-          </div>
-          <!-- /.col -->
-        </div>
-        <!-- /.row -->
 
 {% endblock %}
 
 {% block scripts %}
+<!-- ChartJS -->
+<script src="{% static 'bot/plugins/chart.js/Chart.min.js' %}"></script>
+
 <script>
   $(function () {
     /* ChartJS
@@ -360,18 +360,12 @@
     // Get context with jQuery - using jQuery's .get() method.
     var donutChartCanvas = $('#donutChart').get(0).getContext('2d')
     var donutData        = {
-      labels: [
-          'Chrome', 
-          'IE',
-          'FireFox', 
-          'Safari', 
-          'Opera', 
-          'Navigator', 
-      ],
+      labels: {{ categories.labels|safe }},
       datasets: [
         {
-          data: [700,500,400,600,300,100],
-          backgroundColor : ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de'],
+          data: {{ categories.data|safe }},
+          backgroundColor : ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc',
+                             '#33ffce', '#dc96da', '#3a3a3a', '#ff1212'],
         }
       ]
     }
@@ -390,38 +384,38 @@
     //-------------
     //- BAR CHART -
     //-------------
-      var areaChartData = {
+
+    var barChartCanvas = $('#barChart').get(0).getContext('2d')
+    var ChartData = {
       labels  : ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
       datasets: [
         {
-          label               : 'Digital Goods',
-          backgroundColor     : 'rgba(60,141,188,0.9)',
-          borderColor         : 'rgba(60,141,188,0.8)',
-          pointRadius          : false,
-          pointColor          : '#3b8bba',
-          pointStrokeColor    : 'rgba(60,141,188,1)',
-          pointHighlightFill  : '#fff',
-          pointHighlightStroke: 'rgba(60,141,188,1)',
-          data                : [28, 48, 40, 19, 86, 27, 90]
-        },
-        {
-          label               : 'Electronics',
+          label               : 'Startup',
           backgroundColor     : 'rgba(210, 214, 222, 1)',
           borderColor         : 'rgba(210, 214, 222, 1)',
           pointRadius         : false,
           pointColor          : 'rgba(210, 214, 222, 1)',
           pointStrokeColor    : '#c1c7d1',
           pointHighlightFill  : '#fff',
-          pointHighlightStroke: 'rgba(220,220,220,1)',
-          data                : [65, 59, 80, 81, 56, 55, 40]
+          pointHighlightStroke: 'rgba(220, 220, 220, 1)',
+          data                : {{ startups.months|safe }},
         },
-      ]
+        {
+          label               : 'Regular',
+          backgroundColor     : 'rgba(209, 129, 129, 0.9)',
+          borderColor         : 'rgba(209, 129, 129, 0.8)',
+          pointRadius          : false,
+          pointColor          : '#3b8bba',
+          pointStrokeColor    : 'rgba(209, 129, 129, 1)',
+          pointHighlightFill  : '#fff',
+          pointHighlightStroke: 'rgba(209, 129, 129, 1)',
+          data                : {{ regulars.months|safe }}
+        },
+      ],
     }
-
-    var barChartCanvas = $('#barChart').get(0).getContext('2d')
-    var barChartData = jQuery.extend(true, {}, areaChartData)
-    var temp0 = areaChartData.datasets[0]
-    var temp1 = areaChartData.datasets[1]
+    var barChartData = jQuery.extend(true, {}, ChartData)
+    var temp0 = ChartData.datasets[0]
+    var temp1 = ChartData.datasets[1]
     barChartData.datasets[0] = temp1
     barChartData.datasets[1] = temp0
 
@@ -436,79 +430,6 @@
       data: barChartData,
       options: barChartOptions
     })
-
-    /*
-     * LINE CHART
-     * ----------
-     */
-    //LINE randomly generated data
-
-    var sin = [],
-        cos = []
-    for (var i = 0; i < 14; i += 0.5) {
-      sin.push([i, Math.sin(i)])
-      cos.push([i, Math.cos(i)])
-    }
-    var line_data1 = {
-      data : sin,
-      color: '#3c8dbc'
-    }
-    var line_data2 = {
-      data : cos,
-      color: '#00c0ef'
-    }
-    $.plot('#line-chart', [line_data1, line_data2], {
-      grid  : {
-        hoverable  : true,
-        borderColor: '#f3f3f3',
-        borderWidth: 1,
-        tickColor  : '#f3f3f3'
-      },
-      series: {
-        shadowSize: 0,
-        lines     : {
-          show: true
-        },
-        points    : {
-          show: true
-        }
-      },
-      lines : {
-        fill : false,
-        color: ['#3c8dbc', '#f56954']
-      },
-      yaxis : {
-        show: true
-      },
-      xaxis : {
-        show: true
-      }
-    })
-    //Initialize tooltip on hover
-    $('<div class="tooltip-inner" id="line-chart-tooltip"></div>').css({
-      position: 'absolute',
-      display : 'none',
-      opacity : 0.8
-    }).appendTo('body')
-    $('#line-chart').bind('plothover', function (event, pos, item) {
-
-      if (item) {
-        var x = item.datapoint[0].toFixed(2),
-            y = item.datapoint[1].toFixed(2)
-
-        $('#line-chart-tooltip').html(item.series.label + ' of ' + x + ' = ' + y)
-          .css({
-            top : item.pageY + 5,
-            left: item.pageX + 5
-          })
-          .fadeIn(200)
-      } else {
-        $('#line-chart-tooltip').hide()
-      }
-
-    })
-    /* END LINE CHART */
-
   })
 </script>
 {% endblock %}

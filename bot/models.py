@@ -130,7 +130,7 @@ class ClosedCompany(models.Model):
     postseller = models.ForeignKey('PostSeller', on_delete=models.SET_NULL, null=True)
     fee_type = models.CharField(max_length=4, choices=Global.FEE_TYPE_CHOICES)
     contract_type = models.CharField(max_length=4, choices=Global.CONTRACT_TYPE_CHOICES)
-    payment_form = models.CharField(max_length=4, choices=Global.PAYMENT_FORM_CHOICES)
+    payment_form = models.CharField(max_length=4, choices=Global.PAYMENT_FORM_CHOICES, blank=True)
     date_closed = models.DateField(default=dt.date.today)
     intake = models.IntegerField()
     needs_receipt = models.BooleanField(default=False)
