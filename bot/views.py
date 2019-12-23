@@ -8,11 +8,21 @@ from trello_helper.models import Helper, Updater
 import random as rd
 
 
-contact = os.environ['CONTACT']
+common_context = {
+    'contact': os.environ['CONTACT'],
+    'sales_board_url': os.environ['SALES_BOARD_URL'],
+    'contracts_board_url': os.environ['CONTRACTS_BOARD_URL'],
+    'contacts_table_url': os.environ['CONTACTS_TABLE_URL'],
+    'manual_url': os.environ['MANUAL_URL'],
+    'proposal_url': os.environ['PROPOSAL_URL'],
+    'media_kit_url': os.environ['MEDIA_KIT_URL'],
+    'email_model_url': os.environ['EMAIL_MODEL_URL'],
+}
 
 
 def dashboard(request):
     title = 'Dashboard'
+    template_name = 'bot/index.html'
     counters = {
         'total_contact': Company.objects.all().count(),
         'total_closed': Company.objects.filter(seller_stage=Global.CLOS).count(),
@@ -42,9 +52,9 @@ def dashboard(request):
         ],
     }
 
-    return render(request, 'bot/index.html', {
+    return render(request, template_name, {
+        **common_context,
         'page_name': title,
-        'contact': contact,
         'counters': counters,
         'fee': fee,
         'categories': categories,
@@ -61,8 +71,8 @@ class NewCompany(View):
     def get(self, request, *args, **kwargs):
         form = self.form_class()
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title,
-            'contact': contact,
             'new_company': True,
             'form': form,
         })
@@ -93,7 +103,7 @@ class NewCompany(View):
                 main_contact=main_contact,
             ).save()
 
-            return HttpResponseRedirect('/bot/new_company/success/')
+            return HttpResponseRedirect(f'/bot/new_company/{name}/success/')
 
         return HttpResponse('Something went wrong')
 
@@ -118,8 +128,8 @@ class CloseCompany(View):
     def get(self, request, *args, **kwargs):
         form = self.form_class()
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title,
-            'contact': contact,
             'close_company': True,
             'form': form,
         })
@@ -163,7 +173,7 @@ class CloseCompany(View):
 
             # TODO: populate the closed companies table
 
-            return HttpResponseRedirect('/bot/close_company/success/')
+            return HttpResponseRedirect(f'/bot/close_company/{company.name}/success/')
 
         return HttpResponse('Something went wrong')
 
@@ -182,8 +192,8 @@ class SelectCompany(View):
             c_list.append(i)
         companies = {i + 1: j for i, j in enumerate(c_list)}
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title,
-            'contact': contact,
             'edit_company': True,
             'companies': companies,
         })
@@ -230,8 +240,8 @@ class EditCompany(View):
 
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title.format(name),
-            'contact': contact,
             'edit_company': True,
             'is_closed': c.seller_stage == Global.CLOS,
             'name': name,
@@ -316,8 +326,8 @@ class NewHunter(View):
     def get(self, request, *args, **kwargs):
         form = self.form_class()
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title,
-            'contact': contact,
             'new_hunter': True,
             'form': form,
         })
@@ -331,7 +341,7 @@ class NewHunter(View):
                 form.cleaned_data['hunter_type']
             )
 
-            return HttpResponseRedirect('/bot/new_hunter/success/')
+            return HttpResponseRedirect(f"/bot/new_hunter/{form.cleaned_data['name']}/success/")
 
         return HttpResponse('Something went wrong')
 
@@ -353,8 +363,8 @@ class SelectHunter(View):
         h_list = sorted(sellers + contractors + postsellers, key=lambda x: x.name)
         hunters = {i + 1: j for i, j in enumerate(h_list)}
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title,
-            'contact': contact,
             'edit_hunter': True,
             'hunters': hunters,
         })
@@ -387,8 +397,8 @@ class EditHunter(View):
             'hunter_type': h.hunter_type,
         })
         return render(request, self.template_name, {
+            **common_context,
             'page_name': self.title.format(h.name),
-            'contact': contact,
             'edit_hunter': True,
             'pk': pk,
             'form': form,
@@ -418,14 +428,44 @@ class EditHunter(View):
         return HttpResponse('Something went wrong')
 
 
+def success(request, action, name):
+    action = action.split('_')
+    name = name.replace('-', ' ')
+    action_title = []
+    if 'new' == action[0]:
+        action_title.append('Inclusão')
+        verb = 'adicionado(a)'
+    elif 'edit' == action[0]:
+        action_title.append('Edição')
+        verb = 'editado(a)'
+    elif 'close' == action[0]:
+        action_title.append('Fechamento')
+        verb = 'fechada'
+    if 'company' == action[1]:
+        action_title.append('Empresa')
+    elif 'hunter' == action[1]:
+        action_title.append('Captador')
+
+    title = ' de '.join(action_title)
+    template_name = 'bot/success.html'
+
+    return render(request, template_name, {
+        **common_context,
+        'page_name': title,
+        'name': name,
+        'verb': verb,
+    })
+
+
 def closed_companies(request):
     title = 'Empresas Fechadas'
     template_name = 'bot/closed_companies.html'
 
     return render(request, template_name, {
+        **common_context,
         'page_name': title,
         'closed_companies': True,
-        'contact': contact,
+        'closed_table_url': os.environ['CLOSED_TABLE_URL'],
     })
 
 

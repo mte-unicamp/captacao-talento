@@ -141,8 +141,24 @@ EMAIL_PORT = get_env_var('EMAIL_PORT')
 EMAIL_HOST_USER = get_env_var('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = get_env_var('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = get_env_var('EMAIL_USE_TLS')
+
+# Trello credentials
 TRELLO_TOKEN = get_env_var('TRELLO_TOKEN')
 TRELLO_KEY = get_env_var('TRELLO_KEY')
+
+# Trello references
 SALES_BOARD_ID = get_env_var('SALES_BOARD_ID')
+SALES_BOARD_URL = get_env_var('SALES_BOARD_URL')
 CONTRACTS_BOARD_ID = get_env_var('CONTRACTS_BOARD_ID')
+CONTRACTS_BOARD_URL = get_env_var('CONTRACTS_BOARD_URL')
+CONTACTS_TABLE_URL = get_env_var('CONTACTS_TABLE_URL')
+
+# external urls
+MANUAL_URL = get_env_var('MANUAL_URL')
+PROPOSAL_URL = get_env_var('PROPOSAL_URL')
+MEDIA_KIT_URL = get_env_var('MEDIA_KIT_URL')
+EMAIL_MODEL_URL = get_env_var('EMAIL_MODEL_URL')
+CLOSED_TABLE_URL = get_env_var('CLOSED_TABLE_URL')
+
+# dev contact
 CONTACT = get_env_var('CONTACT')
