@@ -1,52 +1,6 @@
 {% extends "bot/base_generic.html" %}
 {% load staticfiles %}
 
-{% block head %}
-  <style>
-    .color-palette {
-      height: 35px;
-      line-height: 35px;
-      text-align: right;
-      padding-right: .75rem;
-    }
-    
-    .color-palette.disabled {
-      text-align: center;
-      padding-right: 0;
-      display: block;
-    }
-    
-    .color-palette-set {
-      margin-bottom: 15px;
-    }
-
-    .color-palette span {
-      display: none;
-      font-size: 12px;
-    }
-
-    .color-palette:hover span {
-      display: block;
-    }
-
-    .color-palette.disabled span {
-      display: block;
-      text-align: left;
-      padding-left: .75rem;
-    }
-
-    .color-palette-box h4 {
-      position: absolute;
-      left: 1.25rem;
-      margin-top: .75rem;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 12px;
-      display: block;
-      z-index: 7;
-    }
-  </style>
-{% endblock %}
-
 {% block content %}
         <!-- Small boxes (Stat box) -->
         <div class="row">
@@ -68,7 +22,7 @@
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
-                <h3>{{ total_closed }}</h3>
+                <h3>{{ counters.total_closed }}</h3>
 
                 <p>Empresas Fechadas</p>
               </div>
@@ -83,7 +37,7 @@
             <!-- small box -->
             <div class="small-box bg-danger">
               <div class="inner">
-                <h3>{{ total_contact }}</h3>
+                <h3>{{ counters.total_contact }}</h3>
 
                 <p>Empresas em contato</p>
               </div>
@@ -260,7 +214,7 @@
                     <div class="alert alert-info alert-dismissible">
                       <h5><i class="icon fas fa-gem"></i>
                         Diamante
-                        <span class="badge bg-light float-right">{{ diamond }}</span>
+                        <span class="badge bg-light float-right">{{ fee.diamond }}</span>
                       </h5>
                     </div>
                   </div>
@@ -268,7 +222,7 @@
                     <div class="alert alert-warning alert-dismissible">
                       <h5><i class="icon fas fa-coins"></i>
                         Ouro
-                        <span class="badge bg-light float-right">{{ gold }}</span>
+                        <span class="badge bg-light float-right">{{ fee.gold }}</span>
                       </h5>
                     </div>
                   </div>
@@ -276,7 +230,7 @@
                     <div class="alert alert-secondary alert-dismissible">
                       <h5><i class="icon fas fa-sun"></i>
                         Prata
-                        <span class="badge bg-light float-right">{{ silver }}</span>
+                        <span class="badge bg-light float-right">{{ fee.silver }}</span>
                       </h5>
                     </div>
                   </div>
@@ -284,7 +238,7 @@
                     <div class="alert alert-orange alert-dismissible bg-orange">
                       <h5><i class="icon far fa-sun"></i>
                         Bronze
-                        <span class="badge bg-light float-right">{{ bronze }}</span>
+                        <span class="badge bg-light float-right">{{ fee.bronze }}</span>
                       </h5>
                     </div>
                   </div>
@@ -398,7 +352,7 @@
           pointStrokeColor    : '#c1c7d1',
           pointHighlightFill  : '#fff',
           pointHighlightStroke: 'rgba(220, 220, 220, 1)',
-          data                : {{ startups.months|safe }},
+          data                : {{ closed_months.startups|safe }},
         },
         {
           label               : 'Regular',
@@ -409,7 +363,7 @@
           pointStrokeColor    : 'rgba(209, 129, 129, 1)',
           pointHighlightFill  : '#fff',
           pointHighlightStroke: 'rgba(209, 129, 129, 1)',
-          data                : {{ regulars.months|safe }}
+          data                : {{ closed_months.regulars|safe }}
         },
       ],
     }

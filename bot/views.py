@@ -4,9 +4,8 @@ from django.views import View
 from .forms import *
 import os
 from bot.models import *
-from trello_helper.models import Helper
+from trello_helper.models import Helper, Updater
 import random as rd
-import datetime
 
 
 contact = os.environ['CONTACT']
@@ -14,60 +13,42 @@ contact = os.environ['CONTACT']
 
 def dashboard(request):
     title = 'Dashboard'
-    total_contact = Company.objects.all().count()
-    total_closed = Company.objects.filter(seller_stage=Global.CLOS).count()
-    diamond = ClosedCompany.objects.filter(fee_type=Global.DIAM).count()
-    gold = ClosedCompany.objects.filter(fee_type=Global.GOLD).count()
-    silver = ClosedCompany.objects.filter(fee_type=Global.SILV).count()
-    bronze = ClosedCompany.objects.filter(fee_type=Global.BRON).count()
+    counters = {
+        'total_contact': Company.objects.all().count(),
+        'total_closed': Company.objects.filter(seller_stage=Global.CLOS).count(),
+    }
+    fee = {
+        'diamond': ClosedCompany.objects.filter(fee_type=Global.DIAM).count(),
+        'gold': ClosedCompany.objects.filter(fee_type=Global.GOLD).count(),
+        'silver': ClosedCompany.objects.filter(fee_type=Global.SILV).count(),
+        'bronze': ClosedCompany.objects.filter(fee_type=Global.BRON).count(),
+    }
     categories = {
         'labels': list(dict(Global.CATEGORY_CHOICES).values()),
         'data': [Company.objects.filter(category=i).count() for i in Global.CATEGORY_LIST],
     }
-    regulars = {}
-    startups = {}
-    regulars['months'] = [
-        ClosedCompany.objects.filter(
-            date_closed__month=i,
-            contract_type=Global.REGU
-        ).count() for i in range(1, 8)
-    ]
-    startups['months'] = [
-        ClosedCompany.objects.filter(
-            date_closed__month=i,
-            contract_type=Global.STAR
-        ).count() for i in range(1, 8)
-    ]
-    earliest_date = ClosedCompany.objects.all().order_by('date_closed')[0].date_closed
-    earliest_date = earliest_date -datetime.timedelta(days=1)
-    days = (datetime.date.today() - earliest_date).days
-    regulars['labels'] = [
-        (earliest_date + datetime.timedelta(days=i)).strftime("%d/%m") for i in range(days)
-    ]
-    regulars['days'] = [
-        ClosedCompany.objects.filter(
-            date_closed=earliest_date + datetime.timedelta(days=i),
-            contract_type=Global.REGU
-        ).count() for i in range(days)
-    ]
-    startups['days'] = [
-        ClosedCompany.objects.filter(
-            date_closed=earliest_date + datetime.timedelta(days=i),
-            contract_type=Global.STAR
-        ).count() for i in range(days)
-    ]
+    closed_months = {
+        'regulars': [
+            ClosedCompany.objects.filter(
+                date_closed__month=i,
+                contract_type=Global.REGU
+            ).count() for i in range(1, 8)
+        ],
+        'startups': [
+            ClosedCompany.objects.filter(
+                date_closed__month=i,
+                contract_type=Global.STAR
+            ).count() for i in range(1, 8)
+        ],
+    }
+
     return render(request, 'bot/index.html', {
         'page_name': title,
         'contact': contact,
-        'total_contact': total_contact,
-        'total_closed': total_closed,
-        'diamond': diamond,
-        'gold': gold,
-        'silver': silver,
-        'bronze': bronze,
+        'counters': counters,
+        'fee': fee,
         'categories': categories,
-        'regulars': regulars,
-        'startups': startups,
+        'closed_months': closed_months,
         'dashboard': True,
     })
 
@@ -100,8 +81,8 @@ class NewCompany(View):
                     list_id = l['id']
                     break
             else:
-                # PROBLEM: no list matches the seller
-                pass
+                return HttpResponse('No Trello list matches the seller. \
+                    Please solve this issue before adding new company')
             card_id = Helper.post_card(name, list_id).json()['id']
 
             Company(
@@ -115,6 +96,18 @@ class NewCompany(View):
             return HttpResponseRedirect('/bot/new_company/success/')
 
         return HttpResponse('Something went wrong')
+
+
+def get_least_contractor():
+    cn = sorted(Contractor.objects.all(), key=lambda x: x.contact_count)[0].contact_count
+    clist = list(filter(lambda x: x.contact_count == cn, Contractor.objects.all()))
+    return rd.choice(clist)
+
+
+def get_least_postseller():
+    pn = sorted(PostSeller.objects.all(), key=lambda x: x.contact_count)[0].contact_count
+    plist = list(filter(lambda x: x.contact_count == pn, PostSeller.objects.all()))
+    return rd.choice(plist)
 
 
 class CloseCompany(View):
@@ -139,13 +132,8 @@ class CloseCompany(View):
             contract_type = form.cleaned_data['contract_type']
             intake = form.cleaned_data['intake']
 
-            cn = sorted(Contractor.objects.all(), key=lambda x: x.contact_count)[0].contact_count
-            clist = list(filter(lambda x: x.contact_count == cn, Contractor.objects.all()))
-            contractor = rd.choice(clist)
-
-            pn = sorted(PostSeller.objects.all(), key=lambda x: x.contact_count)[0].contact_count
-            plist = list(filter(lambda x: x.contact_count == pn, PostSeller.objects.all()))
-            postseller = rd.choice(plist)
+            contractor = get_least_contractor()
+            postseller = get_least_postseller()
 
             lists = Helper.get_nested_objs(
                 'boards', os.environ['CONTRACTS_BOARD_ID'], 'lists').json()
@@ -155,7 +143,7 @@ class CloseCompany(View):
                     break
             card_id = Helper.post_card(company.name, list_id).json()['id']
 
-            c = ClosedCompany(
+            cc = ClosedCompany(
                 originalcom=company,
                 sec_card_id=card_id,
                 contractor=contractor,
@@ -165,11 +153,15 @@ class CloseCompany(View):
                 intake=intake,
             )
 
-            c.save()
+            cc.save()
+            Reminder.new_company_reminder(company, contractor)
+            Reminder.new_company_reminder(company, postseller)
 
             company.seller_stage = Global.CLOS
-            company.closedcom = c
+            company.closedcom = cc
             company.save()
+
+            # TODO: populate the closed companies table
 
             return HttpResponseRedirect('/bot/close_company/success/')
 
@@ -254,7 +246,8 @@ class EditCompany(View):
             c.name = form.cleaned_data['name']
             c.category = form.cleaned_data['category']
             c.seller_stage = form.cleaned_data['seller_stage']
-            c.seller = form.cleaned_data['seller']
+            if c.seller != form.cleaned_data['seller']:
+                Updater.assign_new_hunter(c, form.cleaned_data['seller'])
             if form.cleaned_data['main_contact'] != '':
                 c.main_contact = form.cleaned_data['main_contact']
 
@@ -262,8 +255,10 @@ class EditCompany(View):
 
             if c.seller_stage == Global.CLOS:
                 # contract info
-                cc.contractor = form.cleaned_data['contractor']
-                cc.postseller = form.cleaned_data['postseller']
+                if cc.contractor != form.cleaned_data['contractor']:
+                    Updater.assign_new_hunter(c, form.cleaned_data['contractor'])
+                if cc.postseller != form.cleaned_data['postseller']:
+                    Updater.assign_new_hunter(c, form.cleaned_data['postseller'])
                 cc.fee_type = form.cleaned_data['fee_type']
                 cc.contract_type = form.cleaned_data['contract_type']
                 cc.intake = form.cleaned_data['intake']
@@ -283,9 +278,34 @@ class EditCompany(View):
 
                 cc.save()
 
+                # TODO: populate the closed companies table
+
             return HttpResponseRedirect(f'/bot/edit_company/{name}/success/')
 
         return HttpResponse('Something went wrong')
+
+
+def create_hunter(name, email, hunter_type):
+    if hunter_type == 'V':
+        list_id = Helper.post_list(name, os.environ['SALES_BOARD_ID']).json()['id']
+        h = Seller(
+            name=name,
+            email=email,
+            list_id=list_id
+        ).save()
+    elif hunter_type == 'C':
+        list_id = Helper.post_list(name, os.environ['CONTRACTS_BOARD_ID']).json()['id']
+        h = Contractor(
+            name=name,
+            email=email,
+            list_id=list_id
+        ).save()
+    else:
+        h = PostSeller(
+            name=name,
+            email=email
+        ).save()
+    return h
 
 
 class NewHunter(View):
@@ -305,29 +325,11 @@ class NewHunter(View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            hunter_type = form.cleaned_data['hunter_type']
-
-            if hunter_type == 'V':
-                list_id = Helper.post_list(name, os.environ['SALES_BOARD_ID']).json()['id']
-                Seller(
-                    name=name,
-                    email=email,
-                    list_id=list_id
-                ).save()
-            elif hunter_type == 'C':
-                list_id = Helper.post_list(name, os.environ['CONTRACTS_BOARD_ID']).json()['id']
-                Contractor(
-                    name=name,
-                    email=email,
-                    list_id=list_id
-                ).save()
-            else:
-                PostSeller(
-                    name=name,
-                    email=email
-                ).save()
+            create_hunter(
+                form.cleaned_data['name'],
+                form.cleaned_data['email'],
+                form.cleaned_data['hunter_type']
+            )
 
             return HttpResponseRedirect('/bot/new_hunter/success/')
 
@@ -400,10 +402,16 @@ class EditHunter(View):
             hunter_type = form.cleaned_data['hunter_type']
 
             if h.hunter_type != hunter_type:
-                # TODO: del object and create new
-                pass
-
-            h.save()
+                create_hunter(h.name, h.email, hunter_type)
+                companies = h.contact_list
+                for c in companies:
+                    contractor = get_least_contractor()
+                    postseller = get_least_postseller()
+                    Updater.assign_new_hunter(c, contractor)
+                    Updater.assign_new_hunter(c, postseller)
+                h.delete()
+            else:
+                h.save()
 
             return HttpResponseRedirect(f'/bot/edit_hunter/{pk}/success/')
 
@@ -414,15 +422,11 @@ def closed_companies(request):
     title = 'Empresas Fechadas'
     template_name = 'bot/closed_companies.html'
 
-    return render(
-        request,
-        template_name,
-        {
-            'page_name': title,
-            'closed_companies': True,
-            'contact': contact,
-        }
-    )
+    return render(request, template_name, {
+        'page_name': title,
+        'closed_companies': True,
+        'contact': contact,
+    })
 
 
 def favicon(request):

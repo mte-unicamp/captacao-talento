@@ -58,6 +58,10 @@ class Contractor(Hunter):
     def contact_count(self):
         return ClosedCompany.objects.filter(contractor=self).count()
 
+    @property
+    def contact_list(self):
+        return list(ClosedCompany.objects.filter(contractor=self))
+
 
 class PostSeller(Hunter):
     """
@@ -66,6 +70,10 @@ class PostSeller(Hunter):
     @property
     def contact_count(self):
         return ClosedCompany.objects.filter(postseller=self).count()
+
+    @property
+    def contact_list(self):
+        return list(ClosedCompany.objects.filter(postseller=self))
 
 
 class Company(models.Model):
@@ -150,7 +158,7 @@ class Reminder(models.Model):
     """docstring for Reminder"""
 
     @staticmethod
-    def new_company_reminder(hunter):
+    def new_company_reminder(company, hunter):
         pass
 
     @staticmethod
