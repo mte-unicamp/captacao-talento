@@ -3,14 +3,13 @@ import os
 import requests as re
 import time
 from globalvars.models import Global
-from bot.models import Company
+from bot.models import Reminder, Company, ClosedCompany, Seller, Contractor
 
 
 class Helper(models.Model):
     """docstring for Helper"""
 
     api_url = "https://api.trello.com/1"
-    board_id = models.CharField(max_length=100)
 
     @staticmethod
     def generic_request(ext_obj, obj_id, nested_obj):
@@ -20,7 +19,7 @@ class Helper(models.Model):
             'key': os.environ['TRELLO_KEY'],
             'token': os.environ['TRELLO_TOKEN'],
         }
-        time.sleep(.05)
+        time.sleep(.05)  # this avoids making too many requests
         return url, querystring
 
     @staticmethod
@@ -30,7 +29,7 @@ class Helper(models.Model):
 
     @staticmethod
     def post_card(name, list_id):
-        url = 'https://api.trello.com/1/cards'
+        url = f'{Helper.api_url}/cards'
         querystring = {
             'name': name,
             'idList': list_id,
@@ -41,10 +40,20 @@ class Helper(models.Model):
 
     @staticmethod
     def post_list(name, board_id):
-        url = 'https://api.trello.com/1/lists'
+        url = f'{Helper.api_url}/lists'
         querystring = {
             'name': name,
             'idBoard': board_id,
+            'key': os.environ['TRELLO_KEY'],
+            'token': os.environ['TRELLO_TOKEN'],
+        }
+        return re.post(url, params=querystring)
+
+    @staticmethod
+    def put_card_in_list(card_id, list_id):
+        url = f'{Helper.api_url}/cards/{card_id}'
+        querystring = {
+            'idList': list_id,
             'key': os.environ['TRELLO_KEY'],
             'token': os.environ['TRELLO_TOKEN'],
         }
@@ -81,6 +90,19 @@ class Updater(models.Model):
             company.update()
             company.comments_number = card['badges']['comments']
             company.save()
+
+    @staticmethod
+    def assign_new_hunter(company, hunter):
+        if type(hunter) == Seller:
+            company.seller = hunter
+        elif type(hunter) == Contractor:
+            company.closedcom.contractor = hunter
+        else:
+            raise TypeError('Hunter must be Seller or Contractor')
+        company.update()
+        company.save()
+        Helper.put_card_in_list(company.card_id, hunter.list_id)
+        Reminder.new_company_reminder(hunter)
 
     @staticmethod
     def label_update(board_id):
