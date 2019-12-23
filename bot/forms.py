@@ -33,13 +33,14 @@ class NewCompanyForm(forms.Form):
 
     name = forms.CharField(max_length=100)
     category = forms.ChoiceField(choices=Global.CATEGORY_CHOICES)
-    seller = forms.ModelChoiceField(queryset=Seller.objects.all())
+    seller = forms.ModelChoiceField(queryset=Seller.objects.all().order_by('name'))
     main_contact = forms.EmailField(required=False)
 
 
 class CloseCompanyForm(forms.Form):
 
-    originalcom = forms.ModelChoiceField(queryset=Company.objects.exclude(seller_stage=Global.CLOS))
+    originalcom = forms.ModelChoiceField(
+        queryset=Company.objects.exclude(seller_stage=Global.CLOS).order_by('name'))
     fee_type = forms.ChoiceField(choices=Global.FEE_TYPE_CHOICES)
     contract_type = forms.ChoiceField(choices=Global.CONTRACT_TYPE_CHOICES)
     intake = forms.IntegerField()
@@ -52,12 +53,14 @@ class EditCompanyForm(forms.Form):
     main_contact = forms.EmailField(required=False)
     seller_stage = forms.ChoiceField(
         choices=Global.STAGE_SELLER_CHOICES,
-        help_text='Só edite se souber o que está fazendo'
+        help_text='Só edite se souber o que está fazendo. Se não souber, edite no Trello!'
     )
 
-    seller = forms.ModelChoiceField(queryset=Seller.objects.all())
-    contractor = forms.ModelChoiceField(queryset=Contractor.objects.all(), required=False)
-    postseller = forms.ModelChoiceField(queryset=PostSeller.objects.all(), required=False)
+    seller = forms.ModelChoiceField(queryset=Seller.objects.all().order_by('name'))
+    contractor = forms.ModelChoiceField(
+        queryset=Contractor.objects.all().order_by('name'), required=False)
+    postseller = forms.ModelChoiceField(
+        queryset=PostSeller.objects.all().order_by('name'), required=False)
 
     fee_type = EmptyChoiceField(
         choices=Global.FEE_TYPE_CHOICES,
@@ -75,7 +78,14 @@ class EditCompanyForm(forms.Form):
         required=False,
         empty_label='-----'
     )
-    payday = forms.DateField(widget=forms.SelectDateWidget, required=False)
+    payday = forms.DateField(
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateTimeInput(attrs={
+            'class': 'form-control datetimepicker-input',
+            'data-target': '#datetimepicker4'
+        }),
+        required=False
+    )
     stand_size = forms.IntegerField(required=False)
     stand_pos = forms.CharField(max_length=10, required=False)
     custom_stand = forms.BooleanField(required=False)

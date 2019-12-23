@@ -20,8 +20,13 @@
                   <div class="form-group">
                     {{ form.email.errors }}
                     <label for="{{ form.email.id_for_label }}">E-mail</label>
-                    {% render_field form.email class="form-control" placeholder="E-mail" %}
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                      </div>
+                      {% render_field form.email class="form-control" placeholder="E-mail" %}
                     </div>
+                  </div>
                   <div class="form-group">
                     {{ form.hunter_type.errors }}
                     <label for="{{ form.hunter_type.id_for_label }}">Classificação</label>

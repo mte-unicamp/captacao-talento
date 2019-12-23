@@ -6,12 +6,69 @@ import os
 from bot.models import *
 from trello_helper.models import Helper
 import random as rd
+import datetime
+
+
+contact = os.environ['CONTACT']
 
 
 def dashboard(request):
     title = 'Dashboard'
+    total_contact = Company.objects.all().count()
+    total_closed = Company.objects.filter(seller_stage=Global.CLOS).count()
+    diamond = ClosedCompany.objects.filter(fee_type=Global.DIAM).count()
+    gold = ClosedCompany.objects.filter(fee_type=Global.GOLD).count()
+    silver = ClosedCompany.objects.filter(fee_type=Global.SILV).count()
+    bronze = ClosedCompany.objects.filter(fee_type=Global.BRON).count()
+    categories = {
+        'labels': list(dict(Global.CATEGORY_CHOICES).values()),
+        'data': [Company.objects.filter(category=i).count() for i in Global.CATEGORY_LIST],
+    }
+    regulars = {}
+    startups = {}
+    regulars['months'] = [
+        ClosedCompany.objects.filter(
+            date_closed__month=i,
+            contract_type=Global.REGU
+        ).count() for i in range(1, 8)
+    ]
+    startups['months'] = [
+        ClosedCompany.objects.filter(
+            date_closed__month=i,
+            contract_type=Global.STAR
+        ).count() for i in range(1, 8)
+    ]
+    earliest_date = ClosedCompany.objects.all().order_by('date_closed')[0].date_closed
+    earliest_date = earliest_date -datetime.timedelta(days=1)
+    days = (datetime.date.today() - earliest_date).days
+    regulars['labels'] = [
+        (earliest_date + datetime.timedelta(days=i)).strftime("%d/%m") for i in range(days)
+    ]
+    regulars['days'] = [
+        ClosedCompany.objects.filter(
+            date_closed=earliest_date + datetime.timedelta(days=i),
+            contract_type=Global.REGU
+        ).count() for i in range(days)
+    ]
+    startups['days'] = [
+        ClosedCompany.objects.filter(
+            date_closed=earliest_date + datetime.timedelta(days=i),
+            contract_type=Global.STAR
+        ).count() for i in range(days)
+    ]
     return render(request, 'bot/index.html', {
         'page_name': title,
+        'contact': contact,
+        'total_contact': total_contact,
+        'total_closed': total_closed,
+        'diamond': diamond,
+        'gold': gold,
+        'silver': silver,
+        'bronze': bronze,
+        'categories': categories,
+        'regulars': regulars,
+        'startups': startups,
+        'dashboard': True,
     })
 
 
@@ -24,6 +81,8 @@ class NewCompany(View):
         form = self.form_class()
         return render(request, self.template_name, {
             'page_name': self.title,
+            'contact': contact,
+            'new_company': True,
             'form': form,
         })
 
@@ -67,6 +126,8 @@ class CloseCompany(View):
         form = self.form_class()
         return render(request, self.template_name, {
             'page_name': self.title,
+            'contact': contact,
+            'close_company': True,
             'form': form,
         })
 
@@ -123,13 +184,15 @@ class SelectCompany(View):
         c_list = []
         cats = dict(Global.CATEGORY_CHOICES)
         stas = dict(Global.STAGE_SELLER_CHOICES)
-        for i in Company.objects.all():
+        for i in Company.objects.all().order_by('name'):
             i.category = cats[i.category]
             i.seller_stage = stas[i.seller_stage]
             c_list.append(i)
         companies = {i + 1: j for i, j in enumerate(c_list)}
         return render(request, self.template_name, {
             'page_name': self.title,
+            'contact': contact,
+            'edit_company': True,
             'companies': companies,
         })
 
@@ -166,7 +229,7 @@ class EditCompany(View):
                 'contract_type': cc.contract_type,
                 'intake': cc.intake,
                 'payment_form': cc.payment_form,
-                'payday': cc.payday,
+                'payday': cc.payday.strftime("%d/%m/%Y") if cc.payday is not None else None,
                 'stand_size': cc.stand_size,
                 'stand_pos': cc.stand_pos,
                 'custom_stand': cc.custom_stand,
@@ -176,6 +239,8 @@ class EditCompany(View):
         form = self.form_class(initial=initial)
         return render(request, self.template_name, {
             'page_name': self.title.format(name),
+            'contact': contact,
+            'edit_company': True,
             'is_closed': c.seller_stage == Global.CLOS,
             'name': name,
             'form': form,
@@ -205,7 +270,7 @@ class EditCompany(View):
 
                 if form.cleaned_data['payment_form'] != '':
                     cc.payment_form = form.cleaned_data['payment_form']
-                if form.cleaned_data['payday'] is not None:
+                if form.cleaned_data['payday'] != '':
                     cc.payday = form.cleaned_data['payday']
                 cc.needs_receipt = form.cleaned_data['needs_receipt']
 
@@ -232,6 +297,8 @@ class NewHunter(View):
         form = self.form_class()
         return render(request, self.template_name, {
             'page_name': self.title,
+            'contact': contact,
+            'new_hunter': True,
             'form': form,
         })
 
@@ -285,6 +352,8 @@ class SelectHunter(View):
         hunters = {i + 1: j for i, j in enumerate(h_list)}
         return render(request, self.template_name, {
             'page_name': self.title,
+            'contact': contact,
+            'edit_hunter': True,
             'hunters': hunters,
         })
 
@@ -317,6 +386,8 @@ class EditHunter(View):
         })
         return render(request, self.template_name, {
             'page_name': self.title.format(h.name),
+            'contact': contact,
+            'edit_hunter': True,
             'pk': pk,
             'form': form,
         })
@@ -340,9 +411,18 @@ class EditHunter(View):
 
 
 def closed_companies(request):
-    context = {}
-    context['page_name'] = 'Empresas Fechadas'
-    return render(request, "bot/closed_companies.html", context)
+    title = 'Empresas Fechadas'
+    template_name = 'bot/closed_companies.html'
+
+    return render(
+        request,
+        template_name,
+        {
+            'page_name': title,
+            'closed_companies': True,
+            'contact': contact,
+        }
+    )
 
 
 def favicon(request):

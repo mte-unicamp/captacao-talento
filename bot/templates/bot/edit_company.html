@@ -2,6 +2,11 @@
 {% load staticfiles %}
 {% load widget_tweaks %}
 
+{% block head %}
+<!-- Tempus Dominus Bootstrap 4 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
+{% endblock %}
+
 {% block content %}
         <!-- Main row -->
         <div class="row">
@@ -30,7 +35,12 @@
                   <div class="form-group">
                     {{ form.main_contact.errors }}
                     <label for="{{ form.main_contact.id_for_label }}">Contato Principal</label>
-                    {% render_field form.main_contact class="form-control" %}
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                      </div>
+                      {% render_field form.main_contact class="form-control" placeholder="E-mail" %}
+                    </div>
                   </div>
                   <div class="form-group">
                     {{ form.seller_stage.errors }}
@@ -44,7 +54,7 @@
                       <div class="form-group">
                         {{ form.seller.errors }}
                         <label for="{{ form.seller.id_for_label }}">Vendedor</label>
-                        {% render_field form.seller class="form-control"%}
+                        {% render_field form.seller class="form-control" %}
                       </div>
                     </div>
                     <div class="col-4">
@@ -74,7 +84,7 @@
                       <div class="form-group">
                         {{ form.contract_type.errors }}
                         <label for="{{ form.contract_type.id_for_label }}">Tipo de Contrato</label>
-                        {% render_field form.contract_type class="form-control"%}
+                        {% render_field form.contract_type class="form-control" %}
                       </div>
                     </div>
                   </div>
@@ -83,7 +93,15 @@
                       <div class="form-group">
                         {{ form.intake.errors }}
                         <label for="{{ form.intake.id_for_label }}">Pagamento</label>
-                        {% render_field form.intake class="form-control" placeholder="Apenas números" %}
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">$</span>
+                          </div>
+                          {% render_field form.intake class="form-control" placeholder="Apenas números" %}
+                          <div class="input-group-append">
+                            <span class="input-group-text">.00</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     <div class="col-4">
@@ -97,7 +115,12 @@
                       <div class="form-group">
                         {{ form.payday.errors }}
                         <label for="{{ form.payday.id_for_label }}">Dia do Pagamento</label>
-                        {% render_field form.payday class="form-control" placeholder="Apenas números" %}
+                        <div class="input-group date" id="datetimepicker4" data-target-input="nearest">
+                          {% render_field form.payday type="text" class="form-control datetimepicker-input" data-target="#datetimepicker4" %}
+                          <div class="input-group-append" data-target="#datetimepicker4" data-toggle="datetimepicker">
+                              <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -119,17 +142,17 @@
                   </div>
                   <div class="row">
                     <div class="col-6">
-                      <div class="form-group">
+                      <div class="form-check">
                         {{ form.custom_stand.errors }}
+                        {% render_field form.custom_stand type="checkbox" class="form-check-input" %}
                         <label for="{{ form.custom_stand.id_for_label }}">Estande Personalizado?</label>
-                        {% render_field form.custom_stand class="form-control" %}
                       </div>
                     </div>
                     <div class="col-6">
-                      <div class="form-group">
+                      <div class="form-check">
                         {{ form.needs_receipt.errors }}
+                        {% render_field form.needs_receipt type="checkbox" class="form-check-input" %}
                         <label for="{{ form.needs_receipt.id_for_label }}">Precisa de Nota Fiscal?</label>
-                        {% render_field form.needs_receipt class="form-control" placeholder="Apenas números" %}
                       </div>
                     </div>
                   </div>
@@ -148,6 +171,20 @@
             </div>
           </div>
           <!-- /.card -->               
-          
+        </div>
         <!-- /.row (main row) -->
- {% endblock %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        $('#datetimepicker4').datetimepicker({
+            format: 'DD/MM/YYYY'
+        });
+    });
+</script>
+{% endblock %}

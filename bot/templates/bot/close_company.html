@@ -35,8 +35,16 @@
                   <div class="form-group">
                     {{ form.intake.errors }}
                     <label for="{{ form.intake.id_for_label }}">Pagamento</label>
-                    {% render_field form.intake class="form-control" placeholder="Apenas números" %}
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                      </div>
+                      {% render_field form.intake class="form-control" placeholder="Apenas números" %}
+                      <div class="input-group-append">
+                        <span class="input-group-text">.00</span>
+                      </div>
                     </div>
+                  </div>
                   <div class="card-footer">
                     <button type="submit" class="btn btn-danger">Submit</button>
                   </div>
