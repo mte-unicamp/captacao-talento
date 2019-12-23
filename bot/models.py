@@ -149,7 +149,9 @@ class ClosedCompany(models.Model):
 class Reminder(models.Model):
     """docstring for Reminder"""
 
-    # attributes
+    @staticmethod
+    def new_company_reminder(hunter):
+        pass
 
     @staticmethod
     def contact_reminder(seller):
