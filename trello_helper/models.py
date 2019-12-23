@@ -3,7 +3,10 @@ import os
 import requests as re
 import time
 from globalvars.models import Global
-from bot.models import Reminder, Company, ClosedCompany, Seller, Contractor
+from bot.models import (
+    Seller, Contractor, PostSeller,
+    Reminder, Company,
+)
 
 
 class Helper(models.Model):
@@ -97,12 +100,15 @@ class Updater(models.Model):
             company.seller = hunter
         elif type(hunter) == Contractor:
             company.closedcom.contractor = hunter
+        elif type(hunter) == PostSeller:
+            company.closedcom.postseller = hunter
         else:
-            raise TypeError('Hunter must be Seller or Contractor')
+            raise TypeError('Hunter must be Seller, Contractor or PostSeller')
         company.update()
         company.save()
-        Helper.put_card_in_list(company.card_id, hunter.list_id)
-        Reminder.new_company_reminder(hunter)
+        if type(hunter) != PostSeller:
+            Helper.put_card_in_list(company.card_id, hunter.list_id)
+        Reminder.new_company_reminder(company, hunter)
 
     @staticmethod
     def label_update(board_id):
