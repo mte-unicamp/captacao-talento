@@ -95,7 +95,7 @@ class NewCompany(View):
                     Please solve this issue before adding new company')
             card_id = Helper.post_card(name, list_id).json()['id']
 
-            Company(
+            c = Company(
                 name=name,
                 card_id=card_id,
                 seller=seller,
@@ -103,7 +103,7 @@ class NewCompany(View):
                 main_contact=main_contact,
             ).save()
 
-            return HttpResponseRedirect(f'/bot/new_company/{name}/success/')
+            return HttpResponseRedirect(f'/bot/new_company/{c.slug}/success/')
 
         return HttpResponse('Something went wrong')
 
@@ -173,7 +173,7 @@ class CloseCompany(View):
 
             # TODO: populate the closed companies table
 
-            return HttpResponseRedirect(f'/bot/close_company/{company.name}/success/')
+            return HttpResponseRedirect(f'/bot/close_company/{company.slug}/success/')
 
         return HttpResponse('Something went wrong')
 
@@ -290,7 +290,7 @@ class EditCompany(View):
 
                 # TODO: populate the closed companies table
 
-            return HttpResponseRedirect(f'/bot/edit_company/{name}/success/')
+            return HttpResponseRedirect(f'/bot/edit_company/{c.slug}/success/')
 
         return HttpResponse('Something went wrong')
 
@@ -298,23 +298,15 @@ class EditCompany(View):
 def create_hunter(name, email, hunter_type):
     if hunter_type == 'V':
         list_id = Helper.post_list(name, os.environ['SALES_BOARD_ID']).json()['id']
-        h = Seller(
-            name=name,
-            email=email,
-            list_id=list_id
-        ).save()
+        h = Seller(name=name, email=email, list_id=list_id)
+        h.save()
     elif hunter_type == 'C':
         list_id = Helper.post_list(name, os.environ['CONTRACTS_BOARD_ID']).json()['id']
-        h = Contractor(
-            name=name,
-            email=email,
-            list_id=list_id
-        ).save()
+        h = Contractor(name=name, email=email, list_id=list_id)
+        h.save()
     else:
-        h = PostSeller(
-            name=name,
-            email=email
-        ).save()
+        h = PostSeller(name=name, email=email)
+        h.save()
     return h
 
 
@@ -335,13 +327,13 @@ class NewHunter(View):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            create_hunter(
+            h = create_hunter(
                 form.cleaned_data['name'],
                 form.cleaned_data['email'],
                 form.cleaned_data['hunter_type']
             )
 
-            return HttpResponseRedirect(f"/bot/new_hunter/{form.cleaned_data['name']}/success/")
+            return HttpResponseRedirect(f'/bot/new_hunter/{h.slug}/success/')
 
         return HttpResponse('Something went wrong')
 
@@ -412,18 +404,19 @@ class EditHunter(View):
             hunter_type = form.cleaned_data['hunter_type']
 
             if h.hunter_type != hunter_type:
-                create_hunter(h.name, h.email, hunter_type)
+                new = create_hunter(h.name, h.email, hunter_type)
                 companies = h.contact_list
+                h.delete()
                 for c in companies:
                     contractor = get_least_contractor()
                     postseller = get_least_postseller()
                     Updater.assign_new_hunter(c, contractor)
                     Updater.assign_new_hunter(c, postseller)
-                h.delete()
+                h = new
             else:
                 h.save()
 
-            return HttpResponseRedirect(f'/bot/edit_hunter/{pk}/success/')
+            return HttpResponseRedirect(f'/bot/edit_hunter/{h.slug}/success/')
 
         return HttpResponse('Something went wrong')
 

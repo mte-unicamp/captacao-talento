@@ -104,8 +104,8 @@ class Updater(models.Model):
             company.closedcom.postseller = hunter
         else:
             raise TypeError('Hunter must be Seller, Contractor or PostSeller')
-        company.update()
         company.save()
+        company.update()
         if type(hunter) != PostSeller:
             Helper.put_card_in_list(company.card_id, hunter.list_id)
         Reminder.new_company_reminder(company, hunter)
