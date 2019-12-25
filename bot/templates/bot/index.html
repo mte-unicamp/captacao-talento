@@ -1,10 +1,44 @@
 {% extends "bot/base_generic.html" %}
 {% load static %}
 
+{% block head %}
+<style>
+  @media (max-width: 797.68px){
+    .alert {
+      min-width: 85vw;
+    }
+    .small-box {
+      min-width: 45vw;
+    }
+    .info-box {
+      height: 110px;
+    }
+  }
+  @media (max-width: 992px){
+    .alert {
+      width: 40vw;
+    }
+    .small-box {
+      min-width: 30vw; 
+    }
+    .info-box {
+      height: 110px;
+    }
+  }
+  @media (min-width: 992px){
+    .small-box {
+      min-width: 20vw;
+      max-width: 30vw; 
+    }
+  }
+
+</style>
+{% endblock %}
+
 {% block content %}
         <!-- Small boxes (Stat box) -->
         <div class="row">
-          <div class="col-lg-3 col-6">
+          <div class="col">
             <!-- small box -->
             <div class="small-box bg-primary">
               <div class="inner">
@@ -18,7 +52,7 @@
             </div>
           </div>
           <!-- ./col -->
-          <div class="col-lg-3 col-6">
+          <div class="col">
             <!-- small box -->
             <div class="small-box bg-success">
               <div class="inner">
@@ -33,9 +67,9 @@
             </div>
           </div>
           <!-- ./col -->
-          <div class="col-lg-3 col-6">
+          <div class="col">
             <!-- small box -->
-            <div class="small-box bg-danger">
+            <div class="small-box bg-teal">
               <div class="inner">
                 <h3>{{ counters.total_contact }}</h3>
 
@@ -48,48 +82,9 @@
             </div>
           </div>
           <!-- ./col -->
-          <div class="col-lg-3 col-6">
+          <div class="col">
             <!-- small box -->
-            <div class="small-box bg-warning">
-              <div class="inner">
-                <h3>Manual de<br>Captação</h3>
-              </div>
-              <div class="icon">
-                <i class="far fa-copy"></i>
-              </div>
-              <a href="{{ manual_url }}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          </div>
-          <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-light">
-              <div class="inner">
-                <h3>Quadro do Trello</h3>
-                <p>Controle de Contratos</p>
-              </div>
-              <div class="icon">
-                <i class="fab fa-trello"></i>
-              </div>
-              <a href="{{ contracts_board_url }}" class="small-box-footer" target="_blank" rel="noopener noreferrer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-          <!-- ./col -->
-        </div>
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-purple">
-              <div class="inner">
-                <h3>Planilha de<br>Contatos</h3>
-              </div>
-              <div class="icon">
-                <i class="fas fa-table"></i>
-              </div>
-              <a href="{{ contacts_table_url }}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box bg-teal">
+            <div class="small-box bg-secondary">
               <div class="inner">
                 <h3>Carta Proposta</h3>
 
@@ -102,7 +97,46 @@
             </div>
           </div>
           <!-- ./col -->
-          <div class="col-lg-3 col-6">
+          <div class="col">
+            <!-- small box -->
+            <div class="small-box bg-primary">
+              <div class="inner">
+                <h3>Quadro do Trello</h3>
+                <p>Controle de Contratos</p>
+              </div>
+              <div class="icon">
+                <i class="fab fa-trello"></i>
+              </div>
+              <a href="{{ contracts_board_url }}" class="small-box-footer" target="_blank" rel="noopener noreferrer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <!-- ./col -->
+          <div class="col">
+              <!-- small box -->
+              <div class="small-box bg-success">
+                <div class="inner">
+                  <h3>Planilha de<br>Contatos</h3>
+                </div>
+                <div class="icon">
+                  <i class="fas fa-table"></i>
+                </div>
+                <a href="{{ contacts_table_url }}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
+              </div>
+          </div>
+          <div class="col">
+            <!-- small box -->
+            <div class="small-box bg-teal">
+              <div class="inner">
+                <h3>Manual de<br>Captação</h3>
+              </div>
+              <div class="icon">
+                <i class="far fa-copy"></i>
+              </div>
+              <a href="{{ manual_url }}" class="small-box-footer">Mais informações <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+        <!-- ./col -->
+          <div class="col">
             <!-- small box -->
             <div class="small-box bg-secondary">
               <div class="inner">
@@ -149,7 +183,7 @@
             </a>
           </div>
           <!-- /.col -->                    
-          <div class="col-md-4 col-sm-6 col-12">
+          <div class="col-md-4 col-sm-6 col-12" style="min-width:33%;">
             <a href="/bot/new_company/">
               <div class="info-box">
                 <span class="info-box-icon bg-danger"><i class="fas fa-comments"></i></span>
@@ -163,7 +197,7 @@
             </a>
           </div>
           <!-- /.col -->                    
-          <div class="col-md-4 col-sm-6 col-12">
+          <div class="col-md-4 col-sm-6 col-12" style="min-width:33%;">
             <a href="/bot/close_company/">
               <div class="info-box bg-danger">
                 <span class="info-box-icon"><i class="fas fa-handshake"></i></span>
@@ -177,7 +211,7 @@
             </a>
           </div>
           <!-- /.col -->                    
-          <div class="col-md-4 col-sm-6 col-12">
+          <div class="col-md-4 col-sm-6 col-12" style="min-width:33%;">
             <a href="/bot/select_company/">
               <div class="info-box">
                 <span class="info-box-icon bg-danger"><i class="fas fa-edit"></i></span>
@@ -210,7 +244,7 @@
               </div>
               <div class="card-body">
                 <div class="row">
-                  <div class="col-3">
+                  <div class="col">
                     <div class="alert alert-info alert-dismissible">
                       <h5><i class="icon fas fa-gem"></i>
                         Diamante
@@ -218,7 +252,7 @@
                       </h5>
                     </div>
                   </div>
-                  <div class="col-3">
+                  <div class="col">
                     <div class="alert alert-warning alert-dismissible">
                       <h5><i class="icon fas fa-coins"></i>
                         Ouro
@@ -226,7 +260,7 @@
                       </h5>
                     </div>
                   </div>
-                  <div class="col-3">
+                  <div class="col">
                     <div class="alert alert-secondary alert-dismissible">
                       <h5><i class="icon fas fa-sun"></i>
                         Prata
@@ -234,7 +268,7 @@
                       </h5>
                     </div>
                   </div>
-                  <div class="col-3">
+                  <div class="col">
                     <div class="alert alert-orange alert-dismissible bg-orange">
                       <h5><i class="icon far fa-sun"></i>
                         Bronze

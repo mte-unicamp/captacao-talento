@@ -18662,7 +18662,7 @@ html.maximized-card {
   font-size: 75px;
 }
 
-@media (max-width: 767.98px) {
+@media (max-width: 300px) {
   .small-box {
     text-align: center;
   }
@@ -19731,7 +19731,7 @@ html.maximized-card {
 .lockscreen-wrapper {
   margin: 0 auto;
   margin-top: 10%;
-  max-width: 400px;
+  max-width: 767.98px;
 }
 
 .lockscreen-item {

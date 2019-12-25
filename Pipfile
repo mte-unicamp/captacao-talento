@@ -14,6 +14,9 @@ werkzeug = "*"
 django-widget-tweaks = "*"
 psycopg2 = "*"
 psycopg2-binary = "*"
+django-heroku = "*"
+gunicorn = "*"
+whitenoise = "*"
 
 [requires]
 python_version = "3.7"
