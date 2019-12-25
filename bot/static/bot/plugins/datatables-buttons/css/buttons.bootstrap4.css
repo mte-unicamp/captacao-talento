@@ -115,7 +115,7 @@ div.dt-button-collection.two-column > :last-child {
   column-count: 2;
 }
 div.dt-button-collection.three-column {
-  width: 450px;
+  width: 400px;
 }
 div.dt-button-collection.three-column > :last-child {
   padding-bottom: 1px;

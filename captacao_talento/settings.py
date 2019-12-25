@@ -25,8 +25,8 @@ def get_env_var(var):
     try:
         return os.environ[var]
     except KeyError:
-        fstring_error = "{} environment variable is not set!"
-        raise ImproperlyConfigured(fstring_error.format(var))
+        error = "{} environment variable is not set!"
+        raise ImproperlyConfigured(error.format(var))
 
 
 SECRET_KEY = get_env_var('SECRET_KEY')
@@ -34,7 +34,7 @@ SECRET_KEY = get_env_var('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = []
 
 
 # Application definition
