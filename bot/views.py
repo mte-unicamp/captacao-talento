@@ -22,7 +22,7 @@ common_context = {
 
 def dashboard(request):
     title = 'Dashboard'
-    template_name = 'bot/index.html'
+    template_name = 'index.html'
     counters = {
         'total_contact': Company.objects.all().count(),
         'total_closed': Company.objects.filter(seller_stage=Global.CLOS).count(),
@@ -35,7 +35,8 @@ def dashboard(request):
     }
     categories = {
         'labels': list(dict(Global.CATEGORY_CHOICES).values()),
-        'data': [Company.objects.filter(category=i).count() for i in Global.CATEGORY_LIST],
+        'data': [Company.objects.filter(
+            category=i, seller_stage=Global.CLOS).count() for i in Global.CATEGORY_LIST],
     }
     closed_months = {
         'regulars': [
@@ -65,7 +66,7 @@ def dashboard(request):
 
 class NewCompany(View):
     form_class = NewCompanyForm
-    template_name = 'bot/new_company.html'
+    template_name = 'new_company.html'
     title = 'Inclusão de Empresa'
 
     def get(self, request, *args, **kwargs):
@@ -101,7 +102,8 @@ class NewCompany(View):
                 seller=seller,
                 category=category,
                 main_contact=main_contact,
-            ).save()
+            )
+            c.save()
 
             return HttpResponseRedirect(f'/bot/new_company/{c.slug}/success/')
 
@@ -122,7 +124,7 @@ def get_least_postseller():
 
 class CloseCompany(View):
     form_class = CloseCompanyForm
-    template_name = 'bot/close_company.html'
+    template_name = 'close_company.html'
     title = 'Fechamento de Empresa'
 
     def get(self, request, *args, **kwargs):
@@ -179,7 +181,7 @@ class CloseCompany(View):
 
 
 class SelectCompany(View):
-    template_name = 'bot/select_company.html'
+    template_name = 'select_company.html'
     title = 'Seleção de Empresa'
 
     def get(self, request, *args, **kwargs):
@@ -201,7 +203,7 @@ class SelectCompany(View):
 
 class EditCompany(View):
     form_class = EditCompanyForm
-    template_name = 'bot/edit_company.html'
+    template_name = 'edit_company.html'
     title = 'Edição de {}'
 
     def get_company(self, name):
@@ -261,8 +263,6 @@ class EditCompany(View):
             if form.cleaned_data['main_contact'] != '':
                 c.main_contact = form.cleaned_data['main_contact']
 
-            c.save()
-
             if c.seller_stage == Global.CLOS:
                 # contract info
                 if cc.contractor != form.cleaned_data['contractor']:
@@ -290,6 +290,8 @@ class EditCompany(View):
 
                 # TODO: populate the closed companies table
 
+            c.save()
+
             return HttpResponseRedirect(f'/bot/edit_company/{c.slug}/success/')
 
         return HttpResponse('Something went wrong')
@@ -312,7 +314,7 @@ def create_hunter(name, email, hunter_type):
 
 class NewHunter(View):
     form_class = NewHunterForm
-    template_name = 'bot/new_hunter.html'
+    template_name = 'new_hunter.html'
     title = 'Inclusão de Captador'
 
     def get(self, request, *args, **kwargs):
@@ -339,7 +341,7 @@ class NewHunter(View):
 
 
 class SelectHunter(View):
-    template_name = 'bot/select_hunter.html'
+    template_name = 'select_hunter.html'
     title = 'Seleção de Captador'
 
     def get(self, request, *args, **kwargs):
@@ -365,7 +367,7 @@ class SelectHunter(View):
 class EditHunter(View):
 
     form_class = EditHunterForm
-    template_name = 'bot/edit_hunter.html'
+    template_name = 'edit_hunter.html'
     title = 'Edição de {}'
 
     def get_hunter(self, pk):
@@ -440,7 +442,7 @@ def success(request, action, name):
         action_title.append('Captador')
 
     title = ' de '.join(action_title)
-    template_name = 'bot/success.html'
+    template_name = 'success.html'
 
     return render(request, template_name, {
         **common_context,
@@ -452,7 +454,7 @@ def success(request, action, name):
 
 def closed_companies(request):
     title = 'Empresas Fechadas'
-    template_name = 'bot/closed_companies.html'
+    template_name = 'closed_companies.html'
 
     return render(request, template_name, {
         **common_context,

@@ -1,4 +1,4 @@
-{% extends "bot/base_generic.html" %}
+{% extends "base_generic.html" %}
 {% load static %}
 {% load widget_tweaks %}
 
@@ -13,29 +13,34 @@
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form action="/bot/new_hunter/" method="post">
+              <form action="/bot/new_company/" method="post">
                 <div class="card-body">
                   {% csrf_token %}
                   {{ form.non_field_errors }}
                   <div class="form-group">
                     {{ form.name.errors }}
                     <label for="{{ form.name.id_for_label }}">Nome</label>
-                    {% render_field form.name class="form-control" placeholder="Nome do(a) captador(a)" %}
+                    {% render_field form.name class="form-control" placeholder="Nome da Empresa" %}
                   </div>
                   <div class="form-group">
-                    {{ form.email.errors }}
-                    <label for="{{ form.email.id_for_label }}">E-mail</label>
+                    {{ form.category.errors }}
+                    <label for="{{ form.category.id_for_label }}">Categoria</label>
+                    {% render_field form.category class="form-control" %}
+                  </div>
+                  <div class="form-group">
+                    {{ form.main_contact.errors }}
+                    <label for="{{ form.main_contact.id_for_label }}">Contato Principal</label>
                     <div class="input-group">
                       <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                       </div>
-                      {% render_field form.email class="form-control" placeholder="E-mail" %}
+                      {% render_field form.main_contact class="form-control" placeholder="E-mail" %}
                     </div>
                   </div>
                   <div class="form-group">
-                    {{ form.hunter_type.errors }}
-                    <label for="{{ form.hunter_type.id_for_label }}">Classificação</label>
-                    {% render_field form.hunter_type class="form-control" %}
+                    {{ form.seller.errors }}
+                    <label for="{{ form.seller.id_for_label }}">Captador</label>
+                    {% render_field form.seller class="form-control" %}
                   </div>
                   <div class="card-footer">
                     <button type="submit" class="btn btn-danger">Submit</button>

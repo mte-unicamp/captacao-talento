@@ -1,10 +1,17 @@
-{% extends "bot/base_generic.html" %}
+{% extends "base_generic.html" %}
 {% load static %}
 {% load widget_tweaks %}
 
 {% block head %}
 <!-- Tempus Dominus Bootstrap 4 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
+<style>
+  @media (max-width: 600.1px) {
+    .optional-button {
+      display: none;
+    }
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -94,11 +101,11 @@
                         {{ form.intake.errors }}
                         <label for="{{ form.intake.id_for_label }}">Pagamento</label>
                         <div class="input-group">
-                          <div class="input-group-prepend">
+                          <div class="input-group-prepend optional-button">
                             <span class="input-group-text">$</span>
                           </div>
                           {% render_field form.intake class="form-control" placeholder="Apenas números" %}
-                          <div class="input-group-append">
+                          <div class="input-group-append optional-button">
                             <span class="input-group-text">.00</span>
                           </div>
                         </div>

@@ -1,6 +1,10 @@
-{% extends "bot/base_generic.html" %}
+{% extends "base_generic.html" %}
 {% load static %}
 {% load widget_tweaks %}
+
+{% block head %}
+  {{ form.media.css }}
+{% endblock head %}
 
 {% block content %}
         <!-- Main row -->
@@ -55,4 +59,8 @@
           <!-- /.card -->               
           
         <!-- /.row (main row) -->
- {% endblock %}
+{% endblock %}
+
+{% block scripts %}
+  {{ form.media.js }}
+{% endblock scripts %}

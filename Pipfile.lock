@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0b30faead11088510a9de54d7f987f25974b943abaf1e2bde333d059316def76"
+            "sha256": "ca7aa3b487288c8449bab2a0c03d26659f270591539db8f3f5827a1a3055bf72"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -52,6 +52,13 @@
             "index": "pypi",
             "version": "==3.0.1"
         },
+        "django-appconf": {
+            "hashes": [
+                "sha256:35f13ca4d567f132b960e2cd4c832c2d03cb6543452d34e29b7ba10371ba80e3",
+                "sha256:c98a7af40062e996b921f5962a1c4f3f0c979fa7885f7be4710cceb90ebe13a6"
+            ],
+            "version": "==1.0.3"
+        },
         "django-extensions": {
             "hashes": [
                 "sha256:a9db7c56a556d244184f589f2437b4228de86ee45e5ebb837fb20c6d54e95ea5",
@@ -67,6 +74,14 @@
             ],
             "index": "pypi",
             "version": "==0.3.1"
+        },
+        "django-select2": {
+            "hashes": [
+                "sha256:4c8c4c7c4afee12c17e64d1eabf77af4cd2666a784cba1e74455ce759dd29393",
+                "sha256:bcd7e5fc920ceee0e63c36372d8e75bd2254d8a37ac67fc16581634766680d30"
+            ],
+            "index": "pypi",
+            "version": "==7.1.2"
         },
         "django-widget-tweaks": {
             "hashes": [
