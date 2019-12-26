@@ -34,7 +34,7 @@ SECRET_KEY = get_env_var('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'bae3703b.ngrok.io']
 
 
 # Application definition
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     # third-party
     'django_extensions',
     'widget_tweaks',
+    'django_select2',
     # apps
     'bot',
     'trello_helper',

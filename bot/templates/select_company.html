@@ -1,6 +1,26 @@
-{% extends "bot/base_generic.html" %}
+{% extends "base_generic.html" %}
 {% load static %}
 {% load widget_tweaks %}
+
+{% block head %}
+<!-- DataTables -->
+<link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
+<style>
+  @media (max-width: 600.1px){
+    .table .optional-col {
+      display: none;
+    }
+  }
+  @media {
+    .card-my {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+</style>
+{% endblock head %}
 
 {% block content %}
         <!-- Main row -->
@@ -12,15 +32,15 @@
                 <h3 class="card-title">Selecione a Empresa</h3>
               </div>
               <!-- /.card-header -->
-              <div class="card-body p-0">
-                <table class="table table-striped table-hover">
+              <div class="card-body p-0 card-my">
+                <table id="selectCompany" class="table table-striped table-hover">
                   <thead>
                     <tr>
                       <th>#</th>
                       <th>Nome</th>
                       <th>Categoria</th>
-                      <th>Estágio</th>
-                      <th>Tempo Inativo</th>
+                      <th class="optional-col">Estágio</th>
+                      <th class="optional-col">Tempo Inativo</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -30,8 +50,8 @@
                       <td>{{ i }}.</td>
                       <td>{{ c.name }}</td>
                       <td>{{ c.category }}</td>
-                      <td>{{ c.seller_stage }}</td>
-                      <td>{{ c.inactive_time }} Dia(s)</td>
+                      <td class="optional-col">{{ c.seller_stage }}</td>
+                      <td class="optional-col">{{ c.inactive_time }} Dia(s)</td>
                       <td>
                         <a href="/bot/edit_company/{{ c.slug }}">
                           <button class="btn btn-danger">Editar</button></td>
@@ -50,3 +70,14 @@
           
         <!-- /.row (main row) -->
  {% endblock %}
+
+{% block scripts %}
+<!-- DataTables -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.js' %}"></script>
+<script>
+  $(function () {
+    $('#selectCompany').DataTable();
+  });
+</script>
+{% endblock scripts %}

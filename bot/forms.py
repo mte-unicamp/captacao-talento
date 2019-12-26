@@ -1,6 +1,7 @@
 from django import forms
 from bot.models import Company, Seller, Contractor, PostSeller
 from globalvars.models import Global
+from django_select2.forms import ModelSelect2Widget
 
 
 type_choices = (
@@ -40,7 +41,12 @@ class NewCompanyForm(forms.Form):
 class CloseCompanyForm(forms.Form):
 
     originalcom = forms.ModelChoiceField(
-        queryset=Company.objects.exclude(seller_stage=Global.CLOS).order_by('name'))
+        widget=ModelSelect2Widget(
+            model=Company,
+            search_fields=['name__icontains']
+        ),
+        queryset=Company.objects.exclude(seller_stage=Global.CLOS).order_by('name')
+    )
     fee_type = forms.ChoiceField(choices=Global.FEE_TYPE_CHOICES)
     contract_type = forms.ChoiceField(choices=Global.CONTRACT_TYPE_CHOICES)
     intake = forms.IntegerField()

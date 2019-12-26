@@ -17,6 +17,7 @@ psycopg2-binary = "*"
 django-heroku = "*"
 gunicorn = "*"
 whitenoise = "*"
+django-select2 = "*"
 
 [requires]
 python_version = "3.7"
