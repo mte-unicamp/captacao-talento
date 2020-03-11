@@ -16,10 +16,6 @@ from django.core.exceptions import ImproperlyConfigured
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
 def get_env_var(var):
     """ Get the environment variable or return exception """
     try:
@@ -158,6 +154,10 @@ SALES_BOARD_URL = get_env_var('SALES_BOARD_URL')
 CONTRACTS_BOARD_ID = get_env_var('CONTRACTS_BOARD_ID')
 CONTRACTS_BOARD_URL = get_env_var('CONTRACTS_BOARD_URL')
 CONTACTS_TABLE_URL = get_env_var('CONTACTS_TABLE_URL')
+
+# Spreadsheet
+CLOSED_TABLE_ID = get_env_var('CLOSED_TABLE_ID')
+CLOSED_TABLE_RANGE = get_env_var('CLOSED_TABLE_RANGE')
 
 # external urls
 MANUAL_URL = get_env_var('MANUAL_URL')

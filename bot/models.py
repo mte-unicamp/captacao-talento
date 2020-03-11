@@ -90,7 +90,7 @@ class Company(models.Model):
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
     closedcom = models.OneToOneField(
-        'ClosedCompany', on_delete=models.CASCADE, blank=True, null=True
+        'ClosedCompany', on_delete=models.SET_NULL, blank=True, null=True
     )
 
     @property
@@ -132,7 +132,7 @@ class Company(models.Model):
 
 class ClosedCompany(models.Model):
 
-    originalcom = models.OneToOneField('Company', on_delete=models.CASCADE)
+    originalcom = models.OneToOneField('Company', on_delete=models.SET_NULL, null=True)
     sec_card_id = models.CharField(max_length=100, primary_key=True)
     contractor = models.ForeignKey('Contractor', on_delete=models.SET_NULL, null=True)
     postseller = models.ForeignKey('PostSeller', on_delete=models.SET_NULL, null=True)

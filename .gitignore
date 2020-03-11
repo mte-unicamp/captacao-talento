@@ -4,7 +4,10 @@ env/
 **/__pycache__
 .env
 .vscode/
+*.pickle
 
 *.txt
 *.sqlite3
 *.db
+
+credentials.json

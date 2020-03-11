@@ -1,11 +1,19 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
+# Project
 from .forms import *
-import os
 from bot.models import *
 from trello_helper.models import Helper, Updater
+# Python
+import os
 import random as rd
+# Google Sheets API
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 
 common_context = {
@@ -122,6 +130,67 @@ def get_least_postseller():
     return rd.choice(plist)
 
 
+def update_sheet(company):
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    SPREADSHEET_ID = os.environ['CLOSED_TABLE_ID']
+    RANGE_NAME = os.environ['CLOSED_TABLE_RANGE']
+    creds = None
+    # The file token.pickle stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists('token.pickle'):
+        with open('token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+
+    service = build('sheets', 'v4', credentials=creds)
+
+    # Call the Sheets API
+    sheet = service.spreadsheets()
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID,
+                                range=RANGE_NAME).execute()
+    values = result.get('values', [])
+    new_row = [
+        company.name,
+        dict(Global.CATEGORY_CHOICES).get(company.category, ''),
+        company.main_contact,
+        company.seller.name,
+        company.closedcom.contractor.name,
+        company.closedcom.postseller.name,
+        dict(Global.FEE_TYPE_CHOICES).get(company.closedcom.fee_type, ''),
+        dict(Global.CONTRACT_TYPE_CHOICES).get(company.closedcom.contract_type, ''),
+        company.closedcom.intake,
+        dict(Global.PAYMENT_FORM_CHOICES).get(company.closedcom.payment_form, ''),
+        company.closedcom.payday.strftime("%d/%m/%Y") if company.closedcom.payday else None,
+        company.closedcom.stand_size,
+        company.closedcom.stand_pos,
+        company.closedcom.custom_stand,
+        company.closedcom.needs_receipt,
+    ]
+    for i in range(len(values)):
+        if values[i][0] == company.name:
+            values[i] = new_row
+            break
+    else:
+        values.append(new_row)
+
+    body = {'values': values}
+    result = sheet.values().update(spreadsheetId=SPREADSHEET_ID,
+                            range=RANGE_NAME, valueInputOption='USER_ENTERED',
+                            body=body).execute()
+    return    
+
+
 class CloseCompany(View):
     form_class = CloseCompanyForm
     template_name = 'close_company.html'
@@ -165,15 +234,16 @@ class CloseCompany(View):
                 intake=intake,
             )
 
-            cc.save()
             Reminder.new_company_reminder(company, contractor)
             Reminder.new_company_reminder(company, postseller)
 
             company.seller_stage = Global.CLOS
             company.closedcom = cc
-            company.save()
 
-            # TODO: populate the closed companies table
+            update_sheet(company)
+
+            cc.save()
+            company.save()
 
             return HttpResponseRedirect(f'/bot/close_company/{company.slug}/success/')
 
@@ -288,7 +358,7 @@ class EditCompany(View):
 
                 cc.save()
 
-                # TODO: populate the closed companies table
+                update_sheet(c)
 
             c.save()
 
