@@ -99,11 +99,11 @@ class Company(models.Model):
 
     @property
     def inactive_time(self):
-        return (dt.date.today() - self.last_activity).days
+        return (dt.date.today() - self.last_activity)
 
     @property
     def needs_reminder(self):
-        g = Global.objects.get(pk=1)
+        g = Global.objects.all()[0]
         return not (
             (self.inactive_time.days < g.URGENT_DEADLINE) or (
                 self.seller_stage in Global.NO_REMINDER)
@@ -171,16 +171,12 @@ class Reminder(models.Model):
         from_email = os.environ['EMAIL_HOST_USER']
         line_list = ["Olá, {seller}!",
                      "",
-                     "Você precisa entrar em contato com a(s)\
-                      empresa(s) a seguir:",
+                     "Você precisa entrar em contato com a(s) empresa(s) a seguir:",
                      ]
         for c in companies:
-            line_list.append("\t* {company} ({email});")
-        line_list.append("Qualquer dúvida ou problema favor entrar \
-            em contato pelo endereço {reply}")
+            line_list.append(f"\t* {c.name} ({c.main_contact});")
+        line_list.append("\nQualquer dúvida ou problema favor entrar em contato pelo endereço {reply}")
         message = "\n".join(line_list).format(seller=seller.name,
-                                              company=c.name,
-                                              email=c.main_contact,
                                               reply=from_email)
         recipient_list = [seller.email]
         send_mail(subject, message, from_email, recipient_list)
