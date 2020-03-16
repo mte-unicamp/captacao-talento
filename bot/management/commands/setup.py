@@ -6,6 +6,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            pass
+            if not Global.objects.all():
+                Global().save()
         except Exception as e:
             raise CommandError('Setup failed')
