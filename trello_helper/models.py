@@ -80,35 +80,31 @@ class Updater(models.Model):
 
     @staticmethod
     def set_last_activity(company):
-        card = Helper.get_nested_objs('cards', company.card_id).json()
-        labels = card['labels']
-        labels_names = [i['name'] for i in labels]
-        for stage in reversed(Global.MANUAL_LABEL_NAMES):
-            if stage in labels_names and company.seller_stage != Global.MANUAL_LABEL_NAMES[stage]:
+        progress_graph = {
+            Global.FIRS: [Global.NANS, Global.INTE, Global.NEGO, Global.REJE, Global.CLOS],
+            Global.NANS: [Global.INTE, Global.NEGO, Global.REJE, Global.CLOS],
+            Global.INTE: [Global.NANS, Global.NEGO, Global.REJE, Global.CLOS],
+            Global.NEGO: [Global.NANS, Global.REJE, Global.CLOS],
+        }
+        stage = company.seller_stage
+        if stage in progress_graph.keys():
+            try:
+                card = Helper.get_nested_objs('cards', company.card_id).json()
+            except:
+                print('{} não presente no quadro!'.format(c['name']))
+                return
+            labels = card['labels']
+            labels_names = [i['name'] for i in labels]
+            for l in labels_names:
+                if Global.MANUAL_LABEL_NAMES[l] in progress_graph[stage]:
+                    company.update()
+                    company.seller_stage = Global.MANUAL_LABEL_NAMES[l]
+                    company.save()
+                    break
+            if card['badges']['comments'] > company.comments_number:
                 company.update()
-                company.seller_stage = Global.MANUAL_LABEL_NAMES[stage]
+                company.comments_number = card['badges']['comments']
                 company.save()
-                break
-        if card['badges']['comments'] > company.comments_number:
-            company.update()
-            company.comments_number = card['badges']['comments']
-            company.save()
-
-    @staticmethod
-    def assign_new_hunter(company, hunter):
-        if type(hunter) == Seller:
-            company.seller = hunter
-        elif type(hunter) == Contractor:
-            company.closedcom.contractor = hunter
-        elif type(hunter) == PostSeller:
-            company.closedcom.postseller = hunter
-        else:
-            raise TypeError('Hunter must be Seller, Contractor or PostSeller')
-        company.save()
-        company.update()
-        if type(hunter) != PostSeller:
-            Helper.put_card_in_list(company.card_id, hunter.list_id)
-        Reminder.new_company_reminder(company, hunter)
 
     @staticmethod
     def label_update(board_id):
@@ -118,11 +114,11 @@ class Updater(models.Model):
 
         for l in labels:
             if l['name'] == Global.AUTO_LABEL_NAMES[0]:
-                upd_id = l['id']
+                upd_id = l['id']    # id for updated label
             elif l['name'] == Global.AUTO_LABEL_NAMES[1]:
-                att_id = l['id']
+                att_id = l['id']    # id for attention label
             elif l['name'] == Global.AUTO_LABEL_NAMES[2]:
-                urg_id = l['id']
+                urg_id = l['id']    # id for urgent label
 
         for c in cards:
             try:
@@ -153,6 +149,17 @@ class Updater(models.Model):
                 Helper.post_label(c['id'], right_id)
 
     @staticmethod
-    def objs_update():
-        # TODO
-        return
+    def assign_new_hunter(company, hunter):
+        if type(hunter) == Seller:
+            company.seller = hunter
+        elif type(hunter) == Contractor:
+            company.closedcom.contractor = hunter
+        elif type(hunter) == PostSeller:
+            company.closedcom.postseller = hunter
+        else:
+            raise TypeError('Hunter must be Seller, Contractor or PostSeller')
+        company.save()
+        company.update()
+        if type(hunter) != PostSeller:
+            Helper.put_card_in_list(company.card_id, hunter.list_id)
+        Reminder.new_company_reminder(company, hunter)
