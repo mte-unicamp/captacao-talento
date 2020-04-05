@@ -1,6 +1,6 @@
 from django.db import models
 import os
-import requests as re
+import requests as rq
 import time
 from globalvars.models import Global
 from bot.models import (
@@ -28,7 +28,7 @@ class Helper(models.Model):
     @staticmethod
     def get_nested_objs(ext_obj, obj_id, nested_obj=''):
         url, querystring = Helper.generic_request(ext_obj, obj_id, nested_obj)
-        return re.get(url, params=querystring)
+        return rq.get(url, params=querystring)
 
     @staticmethod
     def post_card(name, list_id):
@@ -39,7 +39,7 @@ class Helper(models.Model):
             'key': os.environ['TRELLO_KEY'],
             'token': os.environ['TRELLO_TOKEN'],
         }
-        return re.post(url, params=querystring)
+        return rq.post(url, params=querystring)
 
     @staticmethod
     def post_list(name, board_id):
@@ -50,7 +50,7 @@ class Helper(models.Model):
             'key': os.environ['TRELLO_KEY'],
             'token': os.environ['TRELLO_TOKEN'],
         }
-        return re.post(url, params=querystring)
+        return rq.post(url, params=querystring)
 
     @staticmethod
     def put_card_in_list(card_id, list_id):
@@ -60,19 +60,19 @@ class Helper(models.Model):
             'key': os.environ['TRELLO_KEY'],
             'token': os.environ['TRELLO_TOKEN'],
         }
-        return re.post(url, params=querystring)
+        return rq.put(url, params=querystring)
 
     @staticmethod
     def post_label(card_id, label_id):
         url, querystring = Helper.generic_request('cards', card_id, 'idLabels')
         querystring.update({'value': label_id})
-        return re.post(url, params=querystring)
+        return rq.post(url, params=querystring)
 
     @staticmethod
     def delete_label(card_id, label_id):
         url, querystring = Helper.generic_request('cards', card_id, 'idLabels')
         url = '{}/{}'.format(url, label_id)
-        return re.delete(url, params=querystring)
+        return rq.delete(url, params=querystring)
 
 
 class Updater(models.Model):
@@ -91,12 +91,12 @@ class Updater(models.Model):
             try:
                 card = Helper.get_nested_objs('cards', company.card_id).json()
             except:
-                print('{} não presente no quadro!'.format(c['name']))
+                print('{} não presente no quadro!'.format(company.name))
                 return
             labels = card['labels']
             labels_names = [i['name'] for i in labels]
             for l in labels_names:
-                if Global.MANUAL_LABEL_NAMES[l] in progress_graph[stage]:
+                if l in Global.MANUAL_LABEL_NAMES.keys() and Global.MANUAL_LABEL_NAMES[l] in progress_graph[stage]:
                     company.update()
                     company.seller_stage = Global.MANUAL_LABEL_NAMES[l]
                     company.save()
@@ -150,6 +150,14 @@ class Updater(models.Model):
 
     @staticmethod
     def assign_new_hunter(company, hunter):
+
+        if type(hunter) != PostSeller:
+            r = Helper.put_card_in_list(company.card_id, hunter.list_id)
+            if r.status_code != 200:
+                raise r
+
+        Reminder.new_company_reminder(company, hunter)
+
         if type(hunter) == Seller:
             company.seller = hunter
         elif type(hunter) == Contractor:
@@ -158,8 +166,6 @@ class Updater(models.Model):
             company.closedcom.postseller = hunter
         else:
             raise TypeError('Hunter must be Seller, Contractor or PostSeller')
+
         company.save()
         company.update()
-        if type(hunter) != PostSeller:
-            Helper.put_card_in_list(company.card_id, hunter.list_id)
-        Reminder.new_company_reminder(company, hunter)

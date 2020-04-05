@@ -2,6 +2,7 @@ from django.db import models
 from django.core.mail import send_mail
 import os
 import datetime as dt
+import urllib.parse
 from globalvars.models import Global
 
 
@@ -21,7 +22,7 @@ class Hunter(models.Model):
 
     @property
     def slug(self):
-        return self.name.replace(' ', '-')
+        return urllib.parse.quote(self.name.replace(' ', '-'))
 
     class Meta:
         abstract = True
@@ -35,6 +36,13 @@ class Seller(Hunter):
     * A seller is someone that sells to the companies the opportunity
     to participate in the event;
     """
+
+    @property
+    def is_delayed(self):
+        for c in Company.objects.filter(seller=self):
+            if c.needs_reminder:
+                return True
+        return False
 
     @property
     def contact_count(self):

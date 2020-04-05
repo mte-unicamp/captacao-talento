@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from globalvars.models import Global
 
 
 class Command(BaseCommand):
@@ -9,4 +10,5 @@ class Command(BaseCommand):
             if not Global.objects.all():
                 Global().save()
         except Exception as e:
-            raise CommandError('Setup failed')
+            m = 'Setup failed! {0}: {1}'
+            raise CommandError(m.format(str(type(e))[8:-2], str(e)))
