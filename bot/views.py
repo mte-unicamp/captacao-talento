@@ -2,12 +2,27 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views import View
 # Project
-from .forms import *
-from bot.models import *
+from bot.forms import (
+    NewCompanyForm,
+    CloseCompanyForm,
+    EditCompanyForm,
+    NewHunterForm,
+    EditHunterForm,
+)
+from bot.models import (
+    Seller,
+    Contractor,
+    PostSeller,
+    Company,
+    ClosedCompany,
+    Reminder,
+)
 from trello_helper.models import Helper, Updater
+from globalvars.models import Global
 # Python
 import os
 import random as rd
+import urllib.parse
 # Google Sheets API
 import pickle
 import os.path
@@ -186,9 +201,10 @@ def update_sheet(company):
 
     body = {'values': values}
     result = sheet.values().update(spreadsheetId=SPREADSHEET_ID,
-                            range=RANGE_NAME, valueInputOption='USER_ENTERED',
-                            body=body).execute()
-    return    
+                                   range=RANGE_NAME,
+                                   valueInputOption='USER_ENTERED',
+                                   body=body).execute()
+    return
 
 
 class CloseCompany(View):
@@ -277,8 +293,10 @@ class EditCompany(View):
     title = 'Edição de {}'
 
     def get_company(self, name):
-        name = name.replace('-', ' ')
-        c = Company.objects.get(name=name)
+        try:
+            c = Company.objects.get(name=name)
+        except Company.DoesNotExist:
+            c = Company.objects.get(name=name.replace('-', ' '))
         try:
             cc = ClosedCompany.objects.get(originalcom=c)
         except ClosedCompany.DoesNotExist:
@@ -442,6 +460,7 @@ class EditHunter(View):
 
     def get_hunter(self, pk):
         pk = pk.replace('-', ' ')
+        pk = urllib.parse.unquote(pk)
         if Seller.objects.filter(pk=pk).count() != 0:
             h = Seller.objects.get(pk=pk)
             h.hunter_type = 'V'

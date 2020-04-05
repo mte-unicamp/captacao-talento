@@ -51,7 +51,7 @@
                       <td>{{ c.name }}</td>
                       <td>{{ c.category }}</td>
                       <td class="optional-col">{{ c.seller_stage }}</td>
-                      <td class="optional-col">{{ c.inactive_time }} Dia(s)</td>
+                      <td class="optional-col">{{ c.inactive_time.days }} Dia(s)</td>
                       <td>
                         <a href="/bot/edit_company/{{ c.slug }}">
                           <button class="btn btn-danger">Editar</button></td>

@@ -1,5 +1,14 @@
 from django.urls import path
-from bot.views import *
+from bot.views import (
+    NewCompany,
+    SelectCompany,
+    CloseCompany,
+    NewHunter,
+    SelectHunter,
+    EditCompany,
+    EditHunter,
+    success,
+)
 
 app_name = 'bot'
 urlpatterns = [
@@ -9,8 +18,8 @@ urlpatterns = [
     path('new_hunter/', NewHunter.as_view(), name='new_hunter'),
     path('select_hunter/', SelectHunter.as_view(), name='select_hunter'),
 
-    path('edit_company/<slug:name>/', EditCompany.as_view(), name='edit_company'),
-    path('edit_hunter/<slug:pk>/', EditHunter.as_view(), name='edit_hunter'),
+    path('edit_company/<str:name>/', EditCompany.as_view(), name='edit_company'),
+    path('edit_hunter/<str:pk>/', EditHunter.as_view(), name='edit_hunter'),
 
-    path('<str:action>/<slug:name>/success/', success, name='new_company_success'),
+    path('<str:action>/<str:name>/success/', success, name='new_company_success'),
 ]
