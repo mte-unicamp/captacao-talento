@@ -44,7 +44,7 @@ class Command(BaseCommand):
                         try:
                             Reminder.wrong_company_added(c['name'], s)
                             time.sleep(5)
-                            print(f'{c['name']} not in database! E-mail sent!')
+                            print(f'{c["name"]} not in database! E-mail sent!')
                         except Exception as e:
                             m = 'FAILED! {0}-> {1}: {2}'
                             print(m.format(s.name, str(type(e))[8:-2], str(e)))
