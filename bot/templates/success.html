@@ -2,6 +2,14 @@
 {% load static %}
 
 {% block content %}
-	<h5>{{ name }} {{ verb }} com sucesso!</h5>
-	<a href="/">Retornar à Dashboard</a>
+	<h4>{{ name }} {{ action.past }} com sucesso!</h4>
+	<h6>
+		<a href="{{ link }}">{{ action.infinitive }} outr{% if hunter %}o(a) captador(a){% else %}a empresa{% endif %} </a>
+	</h6>
+	<h6>
+		<a href="/">Retornar à Dashboard</a>
+	</h6>
+	<h6>
+		<a href="javascript:history.back()">Voltar</a>
+	</h6>
 {% endblock %}
