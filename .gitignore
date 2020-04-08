@@ -4,8 +4,9 @@ env/
 **/__pycache__
 .env
 .vscode/
-*.pickle
+**/__init__.py
 
+*.pickle
 *.txt
 *.sqlite3
 *.db
