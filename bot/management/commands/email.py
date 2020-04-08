@@ -1,8 +1,11 @@
+# Python std library
 import os
 import time
 
+# Django
 from django.core.management.base import BaseCommand
 
+# Project
 from bot.models import Company, Contractor, Reminder, Seller
 from globalvars.models import Global
 from trello_helper.models import Helper

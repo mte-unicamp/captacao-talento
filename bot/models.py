@@ -1,8 +1,13 @@
-from django.db import models
-from django.core.mail import send_mail
-import os
+# Python std library
 import datetime as dt
+import os
 import urllib.parse
+
+# Django
+from django.core.mail import send_mail
+from django.db import models
+
+# Project
 from globalvars.models import Global
 
 
@@ -22,7 +27,7 @@ class Hunter(models.Model):
 
     @property
     def slug(self):
-        return urllib.parse.quote(self.name.replace(' ', '-'))
+        return urllib.parse.quote(self.name.replace(" ", "-"))
 
     class Meta:
         abstract = True
@@ -89,7 +94,7 @@ class Company(models.Model):
 
     name = models.CharField(max_length=100, unique=True)
     card_id = models.CharField(max_length=100, primary_key=True)
-    seller = models.ForeignKey('Seller', on_delete=models.SET_NULL, null=True)
+    seller = models.ForeignKey("Seller", on_delete=models.SET_NULL, null=True)
     category = models.CharField(max_length=4, choices=Global.CATEGORY_CHOICES)
     seller_stage = models.CharField(
         max_length=4, choices=Global.STAGE_SELLER_CHOICES, default=Global.FIRS
@@ -98,23 +103,23 @@ class Company(models.Model):
     comments_number = models.IntegerField(default=0)
     main_contact = models.EmailField(blank=True)
     closedcom = models.OneToOneField(
-        'ClosedCompany', on_delete=models.SET_NULL, blank=True, null=True
+        "ClosedCompany", on_delete=models.SET_NULL, blank=True, null=True
     )
 
     @property
     def slug(self):
-        return self.name.replace(' ', '-')
+        return self.name.replace(" ", "-")
 
     @property
     def inactive_time(self):
-        return (dt.date.today() - self.last_activity)
+        return dt.date.today() - self.last_activity
 
     @property
     def needs_reminder(self):
         g = Global.objects.all()[0]
         return not (
-            (self.inactive_time.days < g.URGENT_DEADLINE) or (
-                self.seller_stage in Global.NO_REMINDER)
+            (self.inactive_time.days < g.URGENT_DEADLINE)
+            or (self.seller_stage in Global.NO_REMINDER)
         )
 
     @property
@@ -132,7 +137,7 @@ class Company(models.Model):
         self.save()
 
     class Meta:
-        verbose_name_plural = 'companies'
+        verbose_name_plural = "companies"
 
     def __str__(self):
         return self.name
@@ -140,10 +145,10 @@ class Company(models.Model):
 
 class ClosedCompany(models.Model):
 
-    originalcom = models.OneToOneField('Company', on_delete=models.SET_NULL, null=True)
+    originalcom = models.OneToOneField("Company", on_delete=models.SET_NULL, null=True)
     sec_card_id = models.CharField(max_length=100, primary_key=True)
-    contractor = models.ForeignKey('Contractor', on_delete=models.SET_NULL, null=True)
-    postseller = models.ForeignKey('PostSeller', on_delete=models.SET_NULL, null=True)
+    contractor = models.ForeignKey("Contractor", on_delete=models.SET_NULL, null=True)
+    postseller = models.ForeignKey("PostSeller", on_delete=models.SET_NULL, null=True)
     fee_type = models.CharField(max_length=4, choices=Global.FEE_TYPE_CHOICES)
     contract_type = models.CharField(max_length=4, choices=Global.CONTRACT_TYPE_CHOICES)
     payment_form = models.CharField(max_length=4, choices=Global.PAYMENT_FORM_CHOICES, blank=True)
@@ -156,16 +161,16 @@ class ClosedCompany(models.Model):
     payday = models.DateField(blank=True, null=True)
 
     class Meta:
-        verbose_name_plural = 'closedCompanies'
+        verbose_name_plural = "closedCompanies"
 
     def __str__(self):
-        return f'Closed Object: {self.originalcom.name}'
+        return f"Closed Object: {self.originalcom.name}"
 
 
 class Reminder(models.Model):
     """docstring for Reminder"""
 
-    from_email = os.environ['EMAIL_HOST_USER']
+    from_email = os.environ["EMAIL_HOST_USER"]
     greeting = "Olá, {seller}!\n"
     signature = f"\nQualquer dúvida ou problema favor entrar em contato pelo endereço {from_email}"
 
@@ -178,7 +183,7 @@ class Reminder(models.Model):
 
         subject = "[Talento 2020] Uso incorreto da plataforma"
         message = f"{name} criou uma lista manualmente!"
-        recipient_list = [os.environ['CONTACT']]
+        recipient_list = [os.environ["CONTACT"]]
 
         return send_mail(subject, message, Reminder.from_email, recipient_list)
 
@@ -188,11 +193,19 @@ class Reminder(models.Model):
         subject = "[Talento 2020] Uso incorreto da plataforma"
         body = f"Você tentou adicionar a empresa {company}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em Adicionar Empresa para resolver esse problema."
         html_body = f"Você tentou adicionar a empresa <i>{company}</i>, mas o fez da maneira errada! Por favor vá até a plataforma e clique em <b><i>Adicionar Empresa</i></b> para resolver esse problema."
-        message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(seller=seller.name)
-        html_message = "<br>".join([Reminder.greeting, html_body, Reminder.signature]).format(seller=seller.name).replace("\n", "<br>")
+        message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(
+            seller=seller.name
+        )
+        html_message = (
+            "<br>".join([Reminder.greeting, html_body, Reminder.signature])
+            .format(seller=seller.name)
+            .replace("\n", "<br>")
+        )
         recipient_list = [seller.email]
 
-        return send_mail(subject, message, Reminder.from_email, recipient_list, html_message=html_message)
+        return send_mail(
+            subject, message, Reminder.from_email, recipient_list, html_message=html_message
+        )
 
     @staticmethod
     def wrong_company_closed(company):
@@ -200,20 +213,31 @@ class Reminder(models.Model):
         subject = "[Talento 2020] Uso incorreto da plataforma"
         body = f"Você tentou fechar a empresa {company.name}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em Fechar Empresa para resolver esse problema."
         html_body = f"Você tentou fechar a empresa <i>{company.name}</i>, mas o fez da maneira errada! Por favor vá até a plataforma e clique em <b><i>Fechar Empresa</i></b> para resolver esse problema."
-        message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(seller=company.seller.name)
-        html_message = "<br>".join([Reminder.greeting, html_body, Reminder.signature]).format(seller=company.seller.name).replace("\n", "<br>")
+        message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(
+            seller=company.seller.name
+        )
+        html_message = (
+            "<br>".join([Reminder.greeting, html_body, Reminder.signature])
+            .format(seller=company.seller.name)
+            .replace("\n", "<br>")
+        )
         recipient_list = [company.seller.email]
 
-        return send_mail(subject, message, Reminder.from_email, recipient_list, html_message=html_message)
-        
+        return send_mail(
+            subject, message, Reminder.from_email, recipient_list, html_message=html_message
+        )
 
     @staticmethod
     def contact_reminder(seller):
 
         subject = "[Talento 2020] Lembrete de Captação"
         body = "Você precisa entrar em contato com a(s) empresa(s) a seguir:"
-        companies = [f"\t* {c.name} ({c.main_contact});" for c in seller.contact_list if c.needs_reminder]
-        message = "\n".join([Reminder.greeting, body, *companies, Reminder.signature]).format(seller=seller.name)
+        companies = [
+            f"\t* {c.name} ({c.main_contact});" for c in seller.contact_list if c.needs_reminder
+        ]
+        message = "\n".join([Reminder.greeting, body, *companies, Reminder.signature]).format(
+            seller=seller.name
+        )
         recipient_list = [seller.email]
-        
+
         return send_mail(subject, message, Reminder.from_email, recipient_list)
