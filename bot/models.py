@@ -174,6 +174,13 @@ class Reminder(models.Model):
         pass
 
     @staticmethod
+    def wrong_hunter_added(name):
+        subject = "[Talento 2020] Uso incorreto da plataforma"
+        message = f"{name} criou uma lista manualmente!"
+        recipient_list = [os.environ['CONTACT']]
+        return send_mail(subject, message, Reminder.from_email, recipient_list)
+
+    @staticmethod
     def wrong_company_closed(company):
 
         subject = "[Talento 2020] Uso incorreto da plataforma"
