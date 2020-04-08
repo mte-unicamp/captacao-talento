@@ -21,5 +21,5 @@ urlpatterns = [
     path('edit_company/<str:name>/', EditCompany.as_view(), name='edit_company'),
     path('edit_hunter/<str:pk>/', EditHunter.as_view(), name='edit_hunter'),
 
-    path('<str:action>/<str:name>/success/', success, name='new_company_success'),
+    path('<str:verb>_<str:nom>/<str:name>/success/', success, name='new_company_success'),
 ]

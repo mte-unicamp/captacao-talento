@@ -512,32 +512,43 @@ class EditHunter(View):
         return HttpResponse('Something went wrong')
 
 
-def success(request, action, name):
-    action = action.split('_')
+def success(request, verb, nom, name):
     name = name.replace('-', ' ')
-    action_title = []
-    if 'new' == action[0]:
-        action_title.append('Inclusão')
-        verb = 'adicionado(a)'
-    elif 'edit' == action[0]:
-        action_title.append('Edição')
-        verb = 'editado(a)'
-    elif 'close' == action[0]:
-        action_title.append('Fechamento')
-        verb = 'fechada'
-    if 'company' == action[1]:
-        action_title.append('Empresa')
-    elif 'hunter' == action[1]:
-        action_title.append('Captador')
+    action = {}
+    action['title'] = []
 
-    title = ' de '.join(action_title)
+    if verb == 'new':
+        action['title'].append('Inclusão')
+        action['infinitive'] = 'Adicionar'
+        action['past'] = 'adicionado(a)'
+    elif verb == 'edit':
+        action['title'].append('Edição')
+        action['infinitive'] = 'Editar'
+        action['past'] = 'editado(a)'
+    elif verb == 'close':
+        action['title'].append('Fechamento')
+        action['infinitive'] = 'Fechar'
+        action['past'] = 'fechada'
+
+    hunter = False
+    if nom == 'company':
+        action['title'].append('Empresa')
+    elif nom == 'hunter':
+        action['title'].append('Captador')
+        hunter = True
+
+    verb = 'select' if verb == 'edit' else verb
+
+    title = ' de '.join(action['title'])
     template_name = 'success.html'
 
     return render(request, template_name, {
         **common_context,
         'page_name': title,
         'name': name,
-        'verb': verb,
+        'action': action,
+        'link': f'/bot/{verb}_{nom}/',
+        'hunter': hunter,
     })
 
 
