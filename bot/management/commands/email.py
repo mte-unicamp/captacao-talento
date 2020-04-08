@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 try:
                     Reminder.wrong_hunter_added(l['name'])
                     time.sleep(5)
-                    print(f'E-mail sent because {l['name']} added hunter wrongly!')
+                    print(f'E-mail sent because {l["name"]} added hunter wrongly!')
                 except Exception as e:
                     m = 'FAILED! {0}-> {1}: {2}'
                     print(m.format(s.name, str(type(e))[8:-2], str(e)))
@@ -66,7 +66,7 @@ class Command(BaseCommand):
                 try:
                     Reminder.wrong_hunter_added(l['name'])
                     time.sleep(5)
-                    print(f'E-mail sent because {l['name']} added hunter wrongly!')
+                    print(f'E-mail sent because {l["name"]} added hunter wrongly!')
                 except Exception as e:
                     m = 'FAILED! {0}-> {1}: {2}'
                     print(m.format(s.name, str(type(e))[8:-2], str(e)))
