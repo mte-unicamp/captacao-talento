@@ -1,5 +1,8 @@
+# Django
 from django.contrib import admin
-from .models import Seller, Contractor, PostSeller, Company, ClosedCompany, Reminder
+
+# Project
+from .models import ClosedCompany, Company, Contractor, PostSeller, Reminder, Seller
 
 admin.site.register(PostSeller)
 admin.site.register(Seller)
