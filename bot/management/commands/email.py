@@ -1,7 +1,9 @@
 from django.core.management.base import BaseCommand
-from bot.models import Reminder, Seller
+from bot.models import Reminder, Seller, Contractor
+from trello_helper.models import Helper
 from globalvars import Global
 import time
+import os
 
 
 class Command(BaseCommand):
@@ -27,6 +29,32 @@ class Command(BaseCommand):
                     Reminder.wrong_company_closed(company)
                     time.sleep(5)
                     print(f'E-mail sent to {c.seller.name} because closed company wrongly!')
+                except Exception as e:
+                    m = 'FAILED! {0}-> {1}: {2}'
+                    print(m.format(s.name, str(type(e))[8:-2], str(e)))
+                    continue
+
+        for l in Helper.get_nested_objs('boards', os.environ['SALES_BOARD_ID'], 'lists').json():
+            try:
+                Seller.objects.get(name=l['name'])
+            except Seller.DoesNotExist:
+                try:
+                    Reminder.wrong_hunter_added(l['name'])
+                    time.sleep(5)
+                    print(f'E-mail sent because {l['name']} added hunter wrongly!')
+                except Exception as e:
+                    m = 'FAILED! {0}-> {1}: {2}'
+                    print(m.format(s.name, str(type(e))[8:-2], str(e)))
+                    continue
+
+        for l in Helper.get_nested_objs('boards', os.environ['CONTRACTS_BOARD_ID'], 'lists').json():
+            try:
+                Contractor.objects.get(name=l['name'])
+            except Contractor.DoesNotExist:
+                try:
+                    Reminder.wrong_hunter_added(l['name'])
+                    time.sleep(5)
+                    print(f'E-mail sent because {l['name']} added hunter wrongly!')
                 except Exception as e:
                     m = 'FAILED! {0}-> {1}: {2}'
                     print(m.format(s.name, str(type(e))[8:-2], str(e)))
