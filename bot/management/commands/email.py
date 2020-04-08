@@ -25,8 +25,19 @@ class Command(BaseCommand):
                 print(m.format(s.name, str(type(e))[8:-2], str(e)))
                 continue
 
+        reverse_manual_label_names = {k: v for v, k in Global.MANUAL_LABEL_NAMES.items()}
+        for label in Helper.get_nested_objs(
+            "boards", os.environ["SALES_BOARD_ID"], "labels"
+        ).json():
+            if label["name"] == reverse_manual_label_names[Global.CLOS]:
+                closed_label = label
+
         for c in Company.objects.all():
-            if c.seller_stage == Global.CLOS and not c.closedcom:
+            time.sleep(1)
+            if (
+                closed_label in Helper.get_nested_objs("cards", c.card_id, "labels").json()
+                and not c.closedcom
+            ):
                 try:
                     Reminder.wrong_company_closed(c)
                     time.sleep(5)
