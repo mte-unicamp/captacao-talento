@@ -256,6 +256,14 @@ class CloseCompany(View):
             company.seller_stage = Global.CLOS
             company.closedcom = cc
 
+            labels = Helper.get_nested_objs('boards', os.environ['SALES_BOARD_ID'], 'labels').json()
+            reverse_manual_label_names = {k: v for v, k in Global.MANUAL_LABEL_NAMES.items()}
+            for l in labels:
+                if l['name'] == reverse_manual_label_names[Global.CLOS]:
+                    label_id = l['id']
+                    break
+            Helper.post_label(company.card_id, label_id)
+
             update_sheet(company)
 
             cc.save()
