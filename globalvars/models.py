@@ -51,6 +51,7 @@ class Global(models.Model):
     SILV = 'silv'
     GOLD = 'gold'
     DIAM = 'diam'
+    OTHE = 'othe'
 
     FEE_TYPE_LIST = [BRON, SILV, GOLD, DIAM, OTHE]
 
@@ -62,7 +63,6 @@ class Global(models.Model):
     # Contract type
     REGU = 'regu'
     STAR = 'star'
-    OTHE = 'othe'
     CANC = 'canc'
 
     CONTRACT_TYPE_LIST = [REGU, STAR, CANC]
