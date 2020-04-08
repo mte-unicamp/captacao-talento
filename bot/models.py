@@ -175,17 +175,31 @@ class Reminder(models.Model):
 
     @staticmethod
     def wrong_hunter_added(name):
+
         subject = "[Talento 2020] Uso incorreto da plataforma"
         message = f"{name} criou uma lista manualmente!"
         recipient_list = [os.environ['CONTACT']]
+
         return send_mail(subject, message, Reminder.from_email, recipient_list)
+
+    @staticmethod
+    def wrong_company_added(company, seller):
+
+        subject = "[Talento 2020] Uso incorreto da plataforma"
+        body = f"Você tentou adicionar a empresa {company}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em Adicionar Empresa para resolver esse problema."
+        html_body = f"Você tentou adicionar a empresa <i>{company}</i>, mas o fez da maneira errada! Por favor vá até a plataforma e clique em <b><i>Adicionar Empresa</i></b> para resolver esse problema."
+        message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(seller=seller.name)
+        html_message = "<br>".join([Reminder.greeting, html_body, Reminder.signature]).format(seller=seller.name).replace("\n", "<br>")
+        recipient_list = [seller.email]
+
+        return send_mail(subject, message, Reminder.from_email, recipient_list, html_message=html_message)
 
     @staticmethod
     def wrong_company_closed(company):
 
         subject = "[Talento 2020] Uso incorreto da plataforma"
         body = f"Você tentou fechar a empresa {company.name}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em Fechar Empresa para resolver esse problema."
-        html_body = f"Você tentou fechar a empresa {company.name}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em <b><i>Fechar Empresa</i></b> para resolver esse problema."
+        html_body = f"Você tentou fechar a empresa <i>{company.name}</i>, mas o fez da maneira errada! Por favor vá até a plataforma e clique em <b><i>Fechar Empresa</i></b> para resolver esse problema."
         message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(seller=company.seller.name)
         html_message = "<br>".join([Reminder.greeting, html_body, Reminder.signature]).format(seller=company.seller.name).replace("\n", "<br>")
         recipient_list = [company.seller.email]
