@@ -117,6 +117,7 @@ class Updater(models.Model):
                 company.comments_number = card['badges']['comments']
                 company.save()
 
+
     @staticmethod
     def label_update(board_id):
 
