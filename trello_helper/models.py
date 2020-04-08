@@ -108,7 +108,8 @@ class Updater(models.Model):
             for l in labels_names:
                 if Global.MANUAL_LABEL_NAMES[l] in progress_graph[stage]:
                     company.update()
-                    company.seller_stage = Global.MANUAL_LABEL_NAMES[l]
+                    if Global.MANUAL_LABEL_NAMES[l] != Global.CLOS:
+                        company.seller_stage = Global.MANUAL_LABEL_NAMES[l]
                     company.save()
                     break
 
