@@ -28,7 +28,7 @@ def get_env_var(var):
 SECRET_KEY = get_env_var('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = DEBUG = get_env_var('DEBUG')
+DEBUG = bool(get_env_var('DEBUG'))
 
 ALLOWED_HOSTS = []
 
@@ -142,7 +142,7 @@ EMAIL_HOST = get_env_var('EMAIL_HOST')
 EMAIL_PORT = get_env_var('EMAIL_PORT')
 EMAIL_HOST_USER = get_env_var('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = get_env_var('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = get_env_var('EMAIL_USE_TLS')
+EMAIL_USE_TLS = bool(get_env_var('EMAIL_USE_TLS'))
 
 # Trello credentials
 TRELLO_TOKEN = get_env_var('TRELLO_TOKEN')
