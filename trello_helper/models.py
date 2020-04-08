@@ -94,13 +94,24 @@ class Updater(models.Model):
                 print('{} não presente no quadro!'.format(company.name))
                 return
             labels = card['labels']
-            labels_names = [i['name'] for i in labels]
+            labels_names = [i['name'] for i in labels if i['name'] in Global.MANUAL_LABEL_NAMES.keys()]
+
+            if not labels_names:
+                all_labels = Helper.get_nested_objs('boards', os.environ['SALES_BOARD_ID'], 'labels').json()
+                reverse_manual_label_names = {k: v for v, k in Global.MANUAL_LABEL_NAMES.items()}
+                for l in all_labels:
+                    if l['name'] == reverse_manual_label_names[Global.FIRS]:
+                        label_id = l['id']
+                        break
+                Helper.post_label(card['id'], label_id)
+
             for l in labels_names:
-                if l in Global.MANUAL_LABEL_NAMES.keys() and Global.MANUAL_LABEL_NAMES[l] in progress_graph[stage]:
+                if Global.MANUAL_LABEL_NAMES[l] in progress_graph[stage]:
                     company.update()
                     company.seller_stage = Global.MANUAL_LABEL_NAMES[l]
                     company.save()
                     break
+
             if card['badges']['comments'] > company.comments_number:
                 company.update()
                 company.comments_number = card['badges']['comments']
