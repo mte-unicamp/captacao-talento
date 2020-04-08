@@ -136,7 +136,6 @@ class Updater(models.Model):
             try:
                 company = Company.objects.get(card_id=c['id'])
             except Company.DoesNotExist:
-                print('{} não presente no banco de dados!'.format(c['name']))
                 continue
 
             card_labels = Helper.get_nested_objs('cards', c['id'], 'labels').json()
