@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from bot.models import Reminder, Seller, Contractor
 from trello_helper.models import Helper
-from globalvars import Global
+from globalvars.models import Global
 import time
 import os
 
