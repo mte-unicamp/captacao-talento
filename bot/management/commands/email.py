@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from bot.models import Reminder, Seller
+from globalvars import Global
 import time
 
 
@@ -12,10 +13,21 @@ class Command(BaseCommand):
                 if s.is_delayed:
                     Reminder.contact_reminder(s)
                     time.sleep(5)
-                    print(f'E-mail sent to {s.name}!')
+                    print(f'E-mail sent to {s.name} because they are delayed!')
                 else:
                     print(f'{s.name} is up to date!')
             except Exception as e:
                 m = 'FAILED! {0}-> {1}: {2}'
                 print(m.format(s.name, str(type(e))[8:-2], str(e)))
                 continue
+
+        for c in Company.objects.all():                    
+            if c.seller_stage == Global.CLOS and not c.closedcom:
+                try:
+                    Reminder.wrong_company_closed(company)
+                    time.sleep(5)
+                    print(f'E-mail sent to {c.seller.name} because closed company wrongly!')
+                except Exception as e:
+                    m = 'FAILED! {0}-> {1}: {2}'
+                    print(m.format(s.name, str(type(e))[8:-2], str(e)))
+                    continue

@@ -165,26 +165,34 @@ class ClosedCompany(models.Model):
 class Reminder(models.Model):
     """docstring for Reminder"""
 
+    from_email = os.environ['EMAIL_HOST_USER']
+    greeting = "Olá, {seller}!\n"
+    signature = f"\nQualquer dúvida ou problema favor entrar em contato pelo endereço {from_email}"
+
     @staticmethod
     def new_company_reminder(company, hunter):
         pass
 
     @staticmethod
+    def wrong_company_closed(company):
+
+        subject = "[Talento 2020] Uso incorreto da plataforma"
+        body = f"Você tentou fechar a empresa {company.name}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em Fechar Empresa para resolver esse problema."
+        html_body = f"Você tentou fechar a empresa {company.name}, mas o fez da maneira errada! Por favor vá até a plataforma e clique em <b><i>Fechar Empresa</i></b> para resolver esse problema."
+        message = "\n".join([Reminder.greeting, body, Reminder.signature]).format(seller=company.seller.name)
+        html_message = "<br>".join([Reminder.greeting, html_body, Reminder.signature]).format(seller=company.seller.name).replace("\n", "<br>")
+        recipient_list = [company.seller.email]
+
+        return send_mail(subject, message, Reminder.from_email, recipient_list, html_message=html_message)
+        
+
+    @staticmethod
     def contact_reminder(seller):
-        companies = []
-        for c in seller.contact_list:
-            if c.needs_reminder:
-                companies.append(c)
+
         subject = "[Talento 2020] Lembrete de Captação"
-        from_email = os.environ['EMAIL_HOST_USER']
-        line_list = ["Olá, {seller}!",
-                     "",
-                     "Você precisa entrar em contato com a(s) empresa(s) a seguir:",
-                     ]
-        for c in companies:
-            line_list.append(f"\t* {c.name} ({c.main_contact});")
-        line_list.append("\nQualquer dúvida ou problema favor entrar em contato pelo endereço {reply}")
-        message = "\n".join(line_list).format(seller=seller.name,
-                                              reply=from_email)
+        body = "Você precisa entrar em contato com a(s) empresa(s) a seguir:"
+        companies = [f"\t* {c.name} ({c.main_contact});" for c in seller.contact_list if c.needs_reminder]
+        message = "\n".join([Reminder.greeting, body, *companies, Reminder.signature]).format(seller=seller.name)
         recipient_list = [seller.email]
-        send_mail(subject, message, from_email, recipient_list)
+        
+        return send_mail(subject, message, Reminder.from_email, recipient_list)
