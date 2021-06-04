@@ -7,7 +7,7 @@ verify_ssl = true
 pylint = "<2.0.0"
 
 [packages]
-django = "==3.0.3"
+django = "==3.1.9"
 django-extensions = "*"
 requests = "*"
 werkzeug = "*"
